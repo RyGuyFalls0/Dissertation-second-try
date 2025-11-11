@@ -45,12 +45,21 @@ private:
     Resource handleFileUpload(const String& url);
     Resource handleGetUploadStatus();
 
+    // Effects
+ /*   Resource handleReverb();
+    Resource handleDistortion();
+    Resource handleChorus();
+    Resource handleDelay();*/
 
-    File uploadedFile;
+    // extensible list or queue to track which effect should be applied first
+
+
+
+    File uploadedFile; 
     std::unique_ptr<FileChooser> fileChooser;
     std::atomic<float> currentLevel{ 0.0f };
 
 
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

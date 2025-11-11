@@ -122,13 +122,17 @@ auto MainComponent::getResource(const String& url) -> Resource
         else if (url == "/api/level")
             return handleGetLevel();
         else if (url == "/api/upload")
-			return handleFileUpload(url);
+            return handleFileUpload(url);
         else if (url == "/api/upload-status")
             return handleGetUploadStatus();
-        else if (url == "/api/play-file")
-            return handlePlayFile();
-        else if (url == "/api/pause-file")
-            return handlePauseFile();
+        //else if (url == "api/delay")
+        //    return handleDelay();
+        //else if (url == "api/reverb")
+        //    return handleReverb();
+        //else if (url == "api/chorus")
+        //    return handleChorus();
+        //else if (url == "api/reverb")
+        //    return handleDistortion();
     }
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
         .getChildFile("UI")
