@@ -1,5 +1,6 @@
 import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
 import { useState } from "react"
+import LiveWaveform from "./Waveform";
 function App() {
   const effectsList = [
     { name: "Reverb", id: 0 },
@@ -19,10 +20,10 @@ function App() {
 
     if (source.droppableId === "oyster" && destination.droppableId === "activeEffects") {
       const reorderedActiveEffects = [...activeEffects]
+      console.log("we r un ")
       if (activeEffects.length >=5 ) {
         return;
       }
-
       // AI slop probably needs to be restructured
       const Effect = {
         ...structuredClone(effects[source.index]),
@@ -32,11 +33,18 @@ function App() {
       return setActiveEffects(reorderedActiveEffects)
     }
 
-    if (type === 'order') {
-      const reorderedEffects = [...effects]
-      const [removedEffect] = reorderedEffects.splice(source.index, 1)
-      reorderedEffects.splice(destination.index, 0, removedEffect)
-      return setEffects(reorderedEffects)
+    if (source.droppableId === "activeEffects" && destination.droppableId === "oyster") {
+      const updated = [...activeEffects];
+      updated.splice(source.index, 1);
+      setActiveEffects(updated);
+      return;
+    }
+
+    if (source.droppableId === "activeEffects") {
+      const reorderedActiveEffects = [...activeEffects];
+      const [removedEffect] = reorderedActiveEffects.splice(source.index, 1);
+      reorderedActiveEffects.splice(destination.index, 0, removedEffect);
+      return setActiveEffects(reorderedActiveEffects);
     }
   }
 
@@ -50,6 +58,10 @@ function App() {
       </a>
     </header>
 
+    <div className="p-6 flex justify-center">
+        <LiveWaveform />
+      </div>
+
     {/* Main Content */}
     <main className="flex-1 flex flex-col items-center justify-center p-6">
       <h2 className="text-3xl font-bold mb-8">Effects</h2>
@@ -62,32 +74,34 @@ function App() {
               <div className="header">
                 <h3 className="text-lg font-semibold mb-4">Oyster</h3>
               </div>
-              <Droppable droppableId="oyster" type="order" isDropDisabled={true}>
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef}>
-                    {effects.map((effect, index) => (
-                      <Draggable
-                        draggableId={String(effect.id)}
-                        key={effect.id}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <div
-                            {...provided.dragHandleProps}
-                            {...provided.draggableProps}
-                            ref={provided.innerRef}
-                          >
-                            <div className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md">
-                              {effect.name}
-                            </div>
+              <Droppable droppableId="oyster" type="effects">
+              {(provided, snapshot) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className={`flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 ${
+                    snapshot.isDraggingOver ? "opacity-70" : "opacity-100 bg-gray-50"
+                  }`}
+                >
+                  {effects.map((effect, index) => (
+                    <Draggable draggableId={String(effect.id)} key={effect.id} index={index}>
+                      {(provided) => (
+                        <div
+                          {...provided.dragHandleProps}
+                          {...provided.draggableProps}
+                          ref={provided.innerRef}
+                        >
+                          <div className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md text-center cursor-grab">
+                            {effect.name}
                           </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
             </div>
           </div>
 
@@ -97,9 +111,15 @@ function App() {
               <div className="header">
                 <h3 className="text-lg font-semibold mb-4">Active Effects ({activeEffects.length}/5)</h3>
               </div>
-              <Droppable droppableId="activeEffects" type="order">
+              <Droppable droppableId="activeEffects" type="effects"  isDropDisabled={activeEffects.length == 5}>
                 {(provided, snapshot) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef}>
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className={`p-4 rounded-xl min-h-[200px] transition-colors duration-200 ${
+                      snapshot.isDraggingOver ? 'bg-blue-100' : 'bg-gray-50'
+                    }`}
+                  >
                     {activeEffects.map((effect, index) => (
                       <Draggable
                         draggableId={String(effect.id)}
@@ -115,7 +135,7 @@ function App() {
                             snapshot.isDraggingOver ? 'bg-blue-100' : 'bg-transparent'
                             }`}
                           >
-                            <div className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md">
+                            <div className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md text-center cursor-grab">
                               {effect.name}
                             </div>
                           </div>
