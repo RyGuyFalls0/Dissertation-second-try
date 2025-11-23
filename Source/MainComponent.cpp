@@ -76,21 +76,32 @@ MainComponent::~MainComponent()
 }
 
 //==============================================================================
-void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
+void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate) 
 {
     currentLevel.store(0.0f);
+
+    // Prepare all effects in the chain
+    for (auto& effect : effectChain)
+    {
+        effect->prepare(sampleRate, samplesPerBlockExpected);
+    }
 }
 
 void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill)
 {
-    if (transportState != Recording)
+    if (!effectChain.empty())
     {
-        bufferToFill.clearActiveBufferRegion();
-        currentLevel.store(0.0f);
-        return;
+        auto* leftChannel = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
+        auto* rightChannel = bufferToFill.buffer->getNumChannels() > 1
+            ? bufferToFill.buffer->getWritePointer(1, bufferToFill.startSample)
+            : nullptr;
+
+        for (auto& effect : effectChain)
+        {
+            effect->process(leftChannel, rightChannel, bufferToFill.numSamples);
+        }
     }
 
-    // Calculate level (do this once, outside the loop)
     auto level = bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples);
     currentLevel.store(level);
 }
@@ -115,24 +126,11 @@ auto MainComponent::getResource(const String& url) -> Resource
 {
     if (url.startsWith("/api/"))
     {
-        if (url == "/api/start")
-            return handleStartMicrophone();
-        else if (url == "/api/stop")
-            return handleStopMicrophone();
-        else if (url == "/api/level")
-            return handleGetLevel();
-        else if (url == "/api/upload")
-            return handleFileUpload(url);
-        else if (url == "/api/upload-status")
-            return handleGetUploadStatus();
-        //else if (url == "api/delay")
-        //    return handleDelay();
-        //else if (url == "api/reverb")
-        //    return handleReverb();
-        //else if (url == "api/chorus")
-        //    return handleChorus();
-        //else if (url == "api/reverb")
-        //    return handleDistortion();
+		// Handle API requests
+        // Adding delay effect, adding distortion, adding reverb, and adding
+        if (url == "api/effects") {
+			// loop throught the list of effects and add them to the audio chain
+        }
     }
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
         .getChildFile("UI")

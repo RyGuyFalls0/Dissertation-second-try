@@ -1,6 +1,11 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Effects/AudioEffects.h"
+#include "Effects/Delay.h"
+//#include "Effects/Reverb.h"
+//#include "Effects/Distortion.h"
+
 using namespace juce;
 using Resource = WebBrowserComponent::Resource;
 using Resource = WebBrowserComponent::Resource;
@@ -39,17 +44,16 @@ private:
     WebBrowserComponent webView;
     Resource getResource(const juce::String& url);
 
+	Resource handleEffects();
+
     Resource handleStartMicrophone();
     Resource handleStopMicrophone();
     Resource handleGetLevel();
     Resource handleFileUpload(const String& url);
     Resource handleGetUploadStatus();
 
-    // Effects
- /*   Resource handleReverb();
-    Resource handleDistortion();
-    Resource handleChorus();
-    Resource handleDelay();*/
+	std::vector<std::unique_ptr<AudioEffects>> effectChain;
+	double currentSampleRate = 44100;
 
     // extensible list or queue to track which effect should be applied first
 
