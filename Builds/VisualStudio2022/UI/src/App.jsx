@@ -1,6 +1,7 @@
 import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import LiveWaveform from "./Waveform";
+import { sendEffectsData } from "./api.jsx"
 function App() {
   // This list should be using a trait index that captures the position in the activeEffects stack, can be updated with .index 
   const effectsList = [
@@ -22,6 +23,10 @@ function App() {
   const [effects, setEffects] = useState(effectsList)
   const [activeEffects, setActiveEffects] = useState([])
   const [activeEffectsMetadata, setActiveEffectsMetadata] = useState({})
+
+  useEffect(() => {
+    sendEffectsData(activeEffectsMetadata);
+}, [activeEffectsMetadata]);
 
   const handleDragDrop = (results) => {
     const {source, destination, type} = results;
@@ -53,10 +58,11 @@ function App() {
     return;
     }
 
+    // removing from active effects
     if (source.droppableId === "activeEffects" && destination.droppableId === "oyster") {
-      const updated = [...activeEffects];
-      updated.splice(source.index, 1);
-      
+      const reorderedActiveEffects = [...activeEffects];
+      reorderedActiveEffects.splice(source.index, 1);
+
       const newMetadata = {};
       reorderedActiveEffects.forEach((eff, index) => {
         newMetadata[eff.id] = {
@@ -67,7 +73,7 @@ function App() {
       });
     
       setActiveEffects(reorderedActiveEffects);
-      setActiveEffectsMetadata(newMetadata)
+      setActiveEffectsMetadata(newMetadata);
       return;
     }
     // This section is for reordering within activeEffects
@@ -85,7 +91,7 @@ function App() {
       });
       
       setActiveEffects(reorderedActiveEffects);
-      setActiveEffectsMetadata(newMetadata)
+      setActiveEffectsMetadata(newMetadata);
       return;
       }
   }
