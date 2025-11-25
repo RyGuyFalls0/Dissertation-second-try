@@ -1,17 +1,32 @@
 import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import LiveWaveform from "./Waveform";
+import { sendEffectsData } from "./api.jsx"
 function App() {
+  // This list should be using a trait index that captures the position in the activeEffects stack, can be updated with .index 
   const effectsList = [
     { name: "Reverb", id: 0 },
     { name: "Gain", id: 1 },
     { name: "Delay", id: 2 },
     { name: "Distortion", id: 3 }
   ]
-  const nextID = 10;
+
+  // activeEffectsStructure = [
+  //   {
+  //     name: String, 
+  //     position: Int (destination.index), 
+  //     specifics: {e.g. gain: Int, }
+  //   }
+  // ]
+
 
   const [effects, setEffects] = useState(effectsList)
   const [activeEffects, setActiveEffects] = useState([])
+  const [activeEffectsMetadata, setActiveEffectsMetadata] = useState({})
+
+  useEffect(() => {
+    sendEffectsData(activeEffectsMetadata);
+}, [activeEffectsMetadata]);
 
   const handleDragDrop = (results) => {
     const {source, destination, type} = results;
@@ -20,32 +35,65 @@ function App() {
 
     if (source.droppableId === "oyster" && destination.droppableId === "activeEffects") {
       const reorderedActiveEffects = [...activeEffects]
-      console.log("we r un ")
       if (activeEffects.length >=5 ) {
         return;
       }
       // AI slop probably needs to be restructured
-      const Effect = {
+      const effect = {
         ...structuredClone(effects[source.index]),
-        id: `${effects[source.index].name}-${Date.now()}-${Math.random()}`
+        id: `${effects[source.index].name}-${Math.random()}`
       };
-      reorderedActiveEffects.splice(destination.index, 0, Effect)
-      return setActiveEffects(reorderedActiveEffects)
+
+      reorderedActiveEffects.splice(destination.index, 0, effect)
+      const newMetadata = {};
+      reorderedActiveEffects.forEach((eff, index) => {
+        newMetadata[eff.id] = {
+          name: eff.name,
+          position: index,
+          specifics: []
+      };
+    });
+    setActiveEffectsMetadata(newMetadata);
+    setActiveEffects(reorderedActiveEffects);
+    return;
     }
 
+    // removing from active effects
     if (source.droppableId === "activeEffects" && destination.droppableId === "oyster") {
-      const updated = [...activeEffects];
-      updated.splice(source.index, 1);
-      setActiveEffects(updated);
+      const reorderedActiveEffects = [...activeEffects];
+      reorderedActiveEffects.splice(source.index, 1);
+
+      const newMetadata = {};
+      reorderedActiveEffects.forEach((eff, index) => {
+        newMetadata[eff.id] = {
+          name: eff.name,
+          position: index,
+          specifics: activeEffectsMetadata[eff.id]?.specifics || []
+        };
+      });
+    
+      setActiveEffects(reorderedActiveEffects);
+      setActiveEffectsMetadata(newMetadata);
       return;
     }
-
+    // This section is for reordering within activeEffects
     if (source.droppableId === "activeEffects") {
       const reorderedActiveEffects = [...activeEffects];
       const [removedEffect] = reorderedActiveEffects.splice(source.index, 1);
       reorderedActiveEffects.splice(destination.index, 0, removedEffect);
-      return setActiveEffects(reorderedActiveEffects);
-    }
+      const newMetadata = {};
+      reorderedActiveEffects.forEach((eff, index) => {
+        newMetadata[eff.id] = {
+          name: eff.name,
+          position: index,
+          specifics: activeEffectsMetadata[eff.id]?.specifics || []
+        };
+      });
+      
+      setActiveEffects(reorderedActiveEffects);
+      setActiveEffectsMetadata(newMetadata);
+      return;
+      }
   }
 
   return (
@@ -84,7 +132,7 @@ function App() {
                   }`}
                 >
                   {effects.map((effect, index) => (
-                    <Draggable draggableId={String(effect.id)} key={effect.id} index={index}>
+                    <Draggable draggableId={String(effect.name)} key={effect.id} index={index}>
                       {(provided) => (
                         <div
                           {...provided.dragHandleProps}

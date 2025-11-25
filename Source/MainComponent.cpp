@@ -76,31 +76,39 @@ MainComponent::~MainComponent()
 }
 
 //==============================================================================
-void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
+void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate) 
 {
     currentLevel.store(0.0f);
+
+    // Prepare all effects in the chain
+    for (auto& effect : effectChain)
+    {
+        effect->prepare(sampleRate, samplesPerBlockExpected);
+    }
 }
 
 void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill)
 {
-    if (transportState != Recording)
+    if (!effectChain.empty())
     {
-        bufferToFill.clearActiveBufferRegion();
-        currentLevel.store(0.0f);
-        return;
+        auto* leftChannel = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
+        auto* rightChannel = bufferToFill.buffer->getNumChannels() > 1
+            ? bufferToFill.buffer->getWritePointer(1, bufferToFill.startSample)
+            : nullptr;
+
+        for (auto& effect : effectChain)
+        {
+            effect->process(leftChannel, rightChannel, bufferToFill.numSamples);
+        }
     }
 
-    // Calculate level (do this once, outside the loop)
     auto level = bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples);
     currentLevel.store(level);
 }
 
 void MainComponent::releaseResources()
 {
-    // This will be called when the audio device stops, or when it is being
-    // restarted due to a setting change.
-
-    // For more details, see the help for AudioProcessor::releaseResources()
+    effectChain.clear();
 }
 
 //==============================================================================
@@ -115,25 +123,95 @@ auto MainComponent::getResource(const String& url) -> Resource
 {
     if (url.startsWith("/api/"))
     {
-        if (url == "/api/start")
-            return handleStartMicrophone();
-        else if (url == "/api/stop")
-            return handleStopMicrophone();
-        else if (url == "/api/level")
-            return handleGetLevel();
-        else if (url == "/api/upload")
-            return handleFileUpload(url);
-        else if (url == "/api/upload-status")
-            return handleGetUploadStatus();
-        //else if (url == "api/delay")
-        //    return handleDelay();
-        //else if (url == "api/reverb")
-        //    return handleReverb();
-        //else if (url == "api/chorus")
-        //    return handleChorus();
-        //else if (url == "api/reverb")
-        //    return handleDistortion();
+		// Handle API requests
+        //handleEffects(url);
+        // Adding delay effect, adding distortion, adding reverb, and adding
+        if (url.startsWith("/api/effects")) {
+            DBG("Effects endpoint called from frontend");
+
+            // TODO: Parse request body + update audio chain here
+            URL parsedUrl(url);
+            DBG("URL: " + url);
+
+			// probably not safe as accessing array without checking size
+            auto paramValues = parsedUrl.getParameterValues(); // returns an array of all the values, so we just want the first one (metadata)
+
+			String metadataJson = paramValues[0];
+			DBG("Metadata JSON: " + metadataJson);
+
+            if (metadataJson == "{}") {
+                effectChain.clear();
+                String errorResponse = R"({"status": "success", "message": "Missing metadata parameter"})";
+                return WebBrowserComponent::Resource{
+                    stringToVector(errorResponse),
+                    "application/json"
+                };
+            }
+            auto json = JSON::parse(metadataJson);
+            if (!json.isObject())
+            {
+                String errorResponse = R"({"error":"Invalid JSON"})";
+                return Resource{ stringToVector(errorResponse), "application/json" };
+            }
+
+            auto jsonObject = json.getDynamicObject();
+
+            std::vector<std::pair<int, EffectInfo>> sortedEffects;
+
+            for (auto& prop : jsonObject->getProperties())
+            {
+                auto effectId = prop.name.toString();
+                auto effectData = prop.value.getDynamicObject();
+
+                if (effectData != nullptr)
+                {
+                    EffectInfo info;
+                    info.name = effectData->getProperty("name").toString();
+                    info.position = (int)effectData->getProperty("position");
+                    info.specifics = effectData->getProperty("specifics");
+
+                    sortedEffects.push_back({ info.position, info });
+                }
+            }
+
+            std::sort(sortedEffects.begin(), sortedEffects.end(),
+                [](const auto& a, const auto& b) { return a.first < b.first; });
+
+            // Add effects to the chain in order
+            for (const auto& [pos, effectInfo] : sortedEffects)
+            {
+                std::unique_ptr<AudioEffects> effect;
+                if (effectInfo.name == "Delay")
+                {
+                    // Extract parameters from specifics if available
+                    float delayTime = 0.5f;
+                    float feedback = 0.3f;
+                    float mix = 0.5f;
+                    // Parse specifics array here -- not added on frontend yet
+
+                    effect = std::make_unique<Delay>(delayTime, feedback, mix);
+                }
+                if (effect)
+                {
+                    effect->prepare(currentSampleRate, 512);
+                    effectChain.push_back(std::move(effect));
+                    DBG("Hopefully effect is now working");
+                }
+            
+            }
+
+
+
+            auto response = R"({"status": "success"})";
+            return Resource{ stringToVector(response), "application/json" };
+        }
     }
+
+
+
+
+
+
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
         .getChildFile("UI")
         .getChildFile("dist");
