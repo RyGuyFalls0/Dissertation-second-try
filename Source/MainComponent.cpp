@@ -108,10 +108,7 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill
 
 void MainComponent::releaseResources()
 {
-    // This will be called when the audio device stops, or when it is being
-    // restarted due to a setting change.
-
-    // For more details, see the help for AudioProcessor::releaseResources()
+    effectChain.clear();
 }
 
 //==============================================================================
@@ -127,11 +124,94 @@ auto MainComponent::getResource(const String& url) -> Resource
     if (url.startsWith("/api/"))
     {
 		// Handle API requests
+        //handleEffects(url);
         // Adding delay effect, adding distortion, adding reverb, and adding
-        if (url == "api/effects") {
-			// loop throught the list of effects and add them to the audio chain
+        if (url.startsWith("/api/effects")) {
+            DBG("Effects endpoint called from frontend");
+
+            // TODO: Parse request body + update audio chain here
+            URL parsedUrl(url);
+            DBG("URL: " + url);
+
+			// probably not safe as accessing array without checking size
+            auto paramValues = parsedUrl.getParameterValues(); // returns an array of all the values, so we just want the first one (metadata)
+
+			String metadataJson = paramValues[0];
+			DBG("Metadata JSON: " + metadataJson);
+
+            if (metadataJson == "{}") {
+                effectChain.clear();
+                String errorResponse = R"({"status": "success", "message": "Missing metadata parameter"})";
+                return WebBrowserComponent::Resource{
+                    stringToVector(errorResponse),
+                    "application/json"
+                };
+            }
+            auto json = JSON::parse(metadataJson);
+            if (!json.isObject())
+            {
+                String errorResponse = R"({"error":"Invalid JSON"})";
+                return Resource{ stringToVector(errorResponse), "application/json" };
+            }
+
+            auto jsonObject = json.getDynamicObject();
+
+            std::vector<std::pair<int, EffectInfo>> sortedEffects;
+
+            for (auto& prop : jsonObject->getProperties())
+            {
+                auto effectId = prop.name.toString();
+                auto effectData = prop.value.getDynamicObject();
+
+                if (effectData != nullptr)
+                {
+                    EffectInfo info;
+                    info.name = effectData->getProperty("name").toString();
+                    info.position = (int)effectData->getProperty("position");
+                    info.specifics = effectData->getProperty("specifics");
+
+                    sortedEffects.push_back({ info.position, info });
+                }
+            }
+
+            std::sort(sortedEffects.begin(), sortedEffects.end(),
+                [](const auto& a, const auto& b) { return a.first < b.first; });
+
+            // Add effects to the chain in order
+            for (const auto& [pos, effectInfo] : sortedEffects)
+            {
+                std::unique_ptr<AudioEffects> effect;
+                if (effectInfo.name == "Delay")
+                {
+                    // Extract parameters from specifics if available
+                    float delayTime = 0.5f;
+                    float feedback = 0.3f;
+                    float mix = 0.5f;
+                    // Parse specifics array here -- not added on frontend yet
+
+                    effect = std::make_unique<Delay>(delayTime, feedback, mix);
+                }
+                if (effect)
+                {
+                    effect->prepare(currentSampleRate, 512);
+                    effectChain.push_back(std::move(effect));
+                    DBG("Hopefully effect is now working");
+                }
+            
+            }
+
+
+
+            auto response = R"({"status": "success"})";
+            return Resource{ stringToVector(response), "application/json" };
         }
     }
+
+
+
+
+
+
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
         .getChildFile("UI")
         .getChildFile("dist");

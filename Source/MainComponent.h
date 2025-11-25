@@ -34,6 +34,14 @@ public:
 private:
     //==============================================================================
     // Your private member variables go here...
+
+    struct EffectInfo 
+    {
+        juce::String name;
+        int position;
+        juce::var specifics;
+    };
+
     enum TransportState
     {
         Stopped,
@@ -42,9 +50,9 @@ private:
     TransportState transportState;
 
     WebBrowserComponent webView;
-    Resource getResource(const juce::String& url);
+    Resource getResource(const String& url);
 
-	Resource handleEffects();
+	Resource handleEffects(const String& url);
 
     Resource handleStartMicrophone();
     Resource handleStopMicrophone();
