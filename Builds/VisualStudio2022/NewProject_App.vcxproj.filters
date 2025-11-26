@@ -2,6 +2,9 @@
 
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="NewProject\assets">
+      <UniqueIdentifier>{7AA613E7-8E69-3479-17DD-17CF0B826E8B}</UniqueIdentifier>
+    </Filter>
     <Filter Include="NewProject\Source\Effects">
       <UniqueIdentifier>{EE46CE42-10D0-85FC-4522-D52C5A7823AB}</UniqueIdentifier>
     </Filter>
@@ -680,6 +683,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Effects\Delay.cpp">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Effects\Chorus.cpp">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Effects\Distortion.cpp">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Effects\Factory\EffectFactory.cpp">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Effects\Factory\EffectType.cpp">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Effects\EffectType.cpp">
       <Filter>NewProject\Source\Effects</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
@@ -3607,6 +3625,9 @@
     <ClCompile Include="..\..\..\..\..\..\..\..\..\JUCE\modules\juce_gui_extra\juce_gui_extra.mm">
       <Filter>JUCE Modules\juce_gui_extra</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\JuceLibraryCode\BinaryData.cpp">
+      <Filter>JUCE Library Code</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_audio_basics.cpp">
       <Filter>JUCE Library Code</Filter>
     </ClCompile>
@@ -3663,7 +3684,25 @@
     <ClInclude Include="..\..\Source\Effects\AudioEffects.h">
       <Filter>NewProject\Source\Effects</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Effects\Chorus.h">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Effects\Factory\EffectsFactory.h">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Effects\Factory\EffectType.h">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Effects\Distortion.h">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Effects\EffectType.h">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Effects\Delay.h">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Effects\Reverb.h">
       <Filter>NewProject\Source\Effects</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
@@ -7695,11 +7734,26 @@
     <ClInclude Include="..\..\..\..\..\..\..\..\..\JUCE\modules\juce_gui_extra\juce_gui_extra.h">
       <Filter>JUCE Modules\juce_gui_extra</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\BinaryData.h">
+      <Filter>JUCE Library Code</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h">
       <Filter>JUCE Library Code</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\UI\dist\assets\index-bz1e6p3u.js">
+      <Filter>NewProject\assets</Filter>
+    </None>
+    <None Include="..\..\UI\dist\assets\index-r8Kn0C52.css">
+      <Filter>NewProject\assets</Filter>
+    </None>
+    <None Include="..\..\UI\dist\index.html">
+      <Filter>NewProject</Filter>
+    </None>
+    <None Include="..\..\UI\dist\vite.svg">
+      <Filter>NewProject</Filter>
+    </None>
     <None Include="..\..\..\..\..\..\..\..\..\JUCE\modules\juce_audio_devices\native\oboe\src\common\README.md">
       <Filter>JUCE Modules\juce_audio_devices\native\oboe\src\common</Filter>
     </None>
