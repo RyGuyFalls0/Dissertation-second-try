@@ -6,7 +6,7 @@ function App() {
   // This list should be using a trait index that captures the position in the activeEffects stack, can be updated with .index 
   const effectsList = [
     { name: "Reverb", id: 0 },
-    { name: "Gain", id: 1 },
+    { name: "Chorus", id: 1 },
     { name: "Delay", id: 2 },
     { name: "Distortion", id: 3 }
   ]
