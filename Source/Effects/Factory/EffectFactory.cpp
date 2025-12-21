@@ -48,9 +48,6 @@ std::unique_ptr<AudioEffects> EffectsFactory::createEffect(const String& name, D
 
             if (specs->hasProperty("mix"))
                 mix = (float)specs->getProperty("mix");
-
-            if (specs->hasProperty("phase"))
-                phase = (float)specs->getProperty("phase");
         }
 
         effect = std::make_unique<Chorus>(rate, depth, mix, phase);

@@ -14,9 +14,9 @@ function App() {
 
   const effectsSpecs = {
     "Reverb": {},
-    "Chorus": {"rate", "depth", "mix"},
-    "Delay": {"delayTime", "feedback", "mix"},
-    "Distortion": {"drive", "mix"},
+    "Chorus": {"rate":1.7, "depth":0.8, "mix":1.0},
+    "Delay": {"delayTime":0.5, "feedback":0.3, "mix":0.5},
+    "Distortion": {"drive":0.5, "mix":1.0},
     
   }
 
@@ -34,9 +34,10 @@ function App() {
 
   // Add this handler for opening the modal
   const handleEffectClick = (effect) => {
+    const effectSpec = effectsSpecs[effect.name] || {};
     setSelectedEffect({
       ...effect,
-      specifics: activeEffectsMetadata[effect.id]?.specifics || {}
+      specifics: activeEffectsMetadata[effect.id]?.specifics || effectSpec
     });
     setIsModalOpen(true);
   };
@@ -73,7 +74,7 @@ function App() {
         newMetadata[eff.id] = {
           name: eff.name,
           position: index,
-          specifics: {}
+          specifics: effectsSpecs[eff.name]
       };
     });
     setActiveEffectsMetadata(newMetadata);
