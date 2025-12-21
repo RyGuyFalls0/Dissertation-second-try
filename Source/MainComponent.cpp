@@ -104,6 +104,7 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
 
     auto level = bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples);
     currentLevel.store(level);
+    DBG("Buffer RMS before processing: " << bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples));
 }
 
 void MainComponent::releaseResources()
@@ -169,7 +170,7 @@ auto MainComponent::getResource(const String &url) -> Resource
                     EffectInfo info;
                     info.name = effectData->getProperty("name").toString();
                     info.position = (int)effectData->getProperty("position");
-                    info.specifics = effectData->getProperty("specifics");
+                    info.specifics = effectData->getProperty("specifics").getDynamicObject();
 
                     sortedEffects.push_back({info.position, info});
                 }

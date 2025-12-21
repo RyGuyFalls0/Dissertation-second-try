@@ -63,3 +63,5 @@ void Chorus::process(float* leftChannel, float* rightChannel, int numSamples)
             phase -= 1.0f;
     }
 }
+
+String Chorus::getName() const { return "Chorus";}

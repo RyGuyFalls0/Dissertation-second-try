@@ -2,8 +2,9 @@ import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
 import { useState, useEffect } from "react"
 import LiveWaveform from "./Waveform";
 import { sendEffectsData } from "./api.jsx"
+import EffectModal from "./EffectModal";
+
 function App() {
-  // This list should be using a trait index that captures the position in the activeEffects stack, can be updated with .index 
   const effectsList = [
     { name: "Reverb", id: 0 },
     { name: "Chorus", id: 1 },
@@ -11,22 +12,45 @@ function App() {
     { name: "Distortion", id: 3 }
   ]
 
-  // activeEffectsStructure = [
-  //   {
-  //     name: String, 
-  //     position: Int (destination.index), 
-  //     specifics: {e.g. gain: Int, }
-  //   }
-  // ]
-
+  const effectsSpecs = {
+    "Reverb": {},
+    "Chorus": {"rate", "depth", "mix"},
+    "Delay": {"delayTime", "feedback", "mix"},
+    "Distortion": {"drive", "mix"},
+    
+  }
 
   const [effects, setEffects] = useState(effectsList)
   const [activeEffects, setActiveEffects] = useState([])
   const [activeEffectsMetadata, setActiveEffectsMetadata] = useState({})
+  
+  // Add these state variables for the modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEffect, setSelectedEffect] = useState(null);
 
   useEffect(() => {
     sendEffectsData(activeEffectsMetadata);
-}, [activeEffectsMetadata]);
+  }, [activeEffectsMetadata]);
+
+  // Add this handler for opening the modal
+  const handleEffectClick = (effect) => {
+    setSelectedEffect({
+      ...effect,
+      specifics: activeEffectsMetadata[effect.id]?.specifics || {}
+    });
+    setIsModalOpen(true);
+  };
+
+  // Add this handler for saving effect parameters
+  const handleSaveEffectValue = (effectId, value) => {
+    setActiveEffectsMetadata(prev => ({
+      ...prev,
+      [effectId]: {
+        ...prev[effectId],
+        specifics: { value }
+      }
+    }));
+  };
 
   const handleDragDrop = (results) => {
     const {source, destination, type} = results;
@@ -38,7 +62,6 @@ function App() {
       if (activeEffects.length >=5 ) {
         return;
       }
-      // AI slop probably needs to be restructured
       const effect = {
         ...structuredClone(effects[source.index]),
         id: `${effects[source.index].name}-${Math.random()}`
@@ -50,7 +73,7 @@ function App() {
         newMetadata[eff.id] = {
           name: eff.name,
           position: index,
-          specifics: []
+          specifics: {}
       };
     });
     setActiveEffectsMetadata(newMetadata);
@@ -58,7 +81,6 @@ function App() {
     return;
     }
 
-    // removing from active effects
     if (source.droppableId === "activeEffects" && destination.droppableId === "oyster") {
       const reorderedActiveEffects = [...activeEffects];
       reorderedActiveEffects.splice(source.index, 1);
@@ -68,7 +90,7 @@ function App() {
         newMetadata[eff.id] = {
           name: eff.name,
           position: index,
-          specifics: activeEffectsMetadata[eff.id]?.specifics || []
+          specifics: activeEffectsMetadata[eff.id]?.specifics || {}
         };
       });
     
@@ -76,7 +98,7 @@ function App() {
       setActiveEffectsMetadata(newMetadata);
       return;
     }
-    // This section is for reordering within activeEffects
+
     if (source.droppableId === "activeEffects") {
       const reorderedActiveEffects = [...activeEffects];
       const [removedEffect] = reorderedActiveEffects.splice(source.index, 1);
@@ -86,19 +108,18 @@ function App() {
         newMetadata[eff.id] = {
           name: eff.name,
           position: index,
-          specifics: activeEffectsMetadata[eff.id]?.specifics || []
+          specifics: activeEffectsMetadata[eff.id]?.specifics || {}
         };
       });
       
       setActiveEffects(reorderedActiveEffects);
       setActiveEffectsMetadata(newMetadata);
       return;
-      }
+    }
   }
 
   return (
   <div className="min-h-screen bg-white flex flex-col">
-    {/* Header */}
     <header className="bg-gray-800 text-white flex justify-between items-center px-6 py-3">
       <h1 className="text-2xl font-bold">TBC</h1>
       <a href="#" className="text-sm hover:underline">
@@ -110,13 +131,11 @@ function App() {
         <LiveWaveform />
       </div>
 
-    {/* Main Content */}
     <main className="flex-1 flex flex-col items-center justify-center p-6">
       <h2 className="text-3xl font-bold mb-8">Effects</h2>
 
       <div className="grid grid-cols-2 gap-12 w-full max-w-3xl">
         <DragDropContext onDragEnd={handleDragDrop}>
-          {/* Oyster Section */}
           <div className="bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
             <div className="card">
               <div className="header">
@@ -153,7 +172,6 @@ function App() {
             </div>
           </div>
 
-          {/* Active Effects Section */}
           <div className="bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
             <div className="card">
               <div className="header">
@@ -183,8 +201,18 @@ function App() {
                             snapshot.isDraggingOver ? 'bg-blue-100' : 'bg-transparent'
                             }`}
                           >
-                            <div className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md text-center cursor-grab">
-                              {effect.name}
+                            {/* Add onClick handler here */}
+                            <div 
+                              className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md text-center cursor-grab"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEffectClick(effect);
+                              }}
+                            >
+                              <div className="flex items-center justify-center gap-2">
+                                <span>{effect.name}</span>
+                                <span className="text-gray-500 text-sm">▼</span>
+                              </div>
                             </div>
                           </div>
                         )}
@@ -199,8 +227,15 @@ function App() {
         </DragDropContext>
       </div>
     </main>
+
+    {/* Add the modal component */}
+    <EffectModal
+      effect={selectedEffect}
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      onSave={handleSaveEffectValue}
+    />
   </div>
 )};
 
-
-  export default App;
+export default App;

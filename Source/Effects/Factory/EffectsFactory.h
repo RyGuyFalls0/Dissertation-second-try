@@ -7,5 +7,5 @@ using namespace juce;
 
 class EffectsFactory {
 public:
-    static std::unique_ptr<AudioEffects> createEffect(const String& name, var specs);
+    static std::unique_ptr<AudioEffects> createEffect(const String& name, DynamicObject::Ptr specs);
 }; 

@@ -37,7 +37,7 @@ private:
     {
         String name;
         int position;
-        var specifics;
+        DynamicObject::Ptr specifics;
     };
 
     enum TransportState

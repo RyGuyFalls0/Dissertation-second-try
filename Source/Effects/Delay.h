@@ -7,13 +7,16 @@ using namespace juce;
 class Delay : public AudioEffects
 {
 public:
-    Delay(float delayTimeSeconds = 0.5f, float feedback = 0.3f, float mix = 0.5f);
+    Delay(float delayTimeSeconds, float feedback, float mix);
 	~Delay() noexcept override = default;
 
     void prepare(double sampleRate, int samplesPerBlock) override;
     void process(float* leftChannel, float* rightChannel, int numSamples) override;
     String getName() const override;
 
+    void setWetDryMix(float wetDry) { wetDryMix = jlimit(0.0f, 1.0f, wetDry); }
+    void setFeedback(float feedback) { feedbackAmount = jlimit(0.0f, 0.95f, feedback);  }
+    void setDelayTime(float newDelayTime) { delayTime = jlimit(0.001f, 2.0f, newDelayTime); }
 private:
 	// interpolation type set to None for simplicity -- could be set to Linear for smoother delay time changes
     dsp::DelayLine<float, dsp::DelayLineInterpolationTypes::None> delayLineLeft;
