@@ -1,6 +1,7 @@
 // AudioEffect.h
 #pragma once
 #include <JuceHeader.h>
+using namespace juce;
 
 class AudioEffects
 {
