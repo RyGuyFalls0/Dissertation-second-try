@@ -8,20 +8,11 @@
 
 namespace BinaryData
 {
-    extern const char*   indexbz1e6p3u_js;
-    const int            indexbz1e6p3u_jsSize = 340547;
-
-    extern const char*   indexr8Kn0C52_css;
-    const int            indexr8Kn0C52_cssSize = 9916;
-
     extern const char*   index_html;
     const int            index_htmlSize = 449;
 
-    extern const char*   vite_svg;
-    const int            vite_svgSize = 1497;
-
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 4;
+    const int namedResourceListSize = 1;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];

@@ -4311,10 +4311,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h"/>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\UI\dist\assets\index-bz1e6p3u.js"/>
-    <None Include="..\..\UI\dist\assets\index-r8Kn0C52.css"/>
     <None Include="..\..\UI\dist\index.html"/>
-    <None Include="..\..\UI\dist\vite.svg"/>
     <None Include="..\..\..\..\..\..\..\..\..\JUCE\modules\juce_audio_devices\native\oboe\src\common\README.md"/>
     <None Include="..\..\..\..\..\..\..\..\..\JUCE\modules\juce_audio_devices\native\oboe\src\flowgraph\resampler\README.md"/>
     <None Include="..\..\..\..\..\..\..\..\..\JUCE\modules\juce_audio_devices\native\oboe\CMakeLists.txt"/>
