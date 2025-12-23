@@ -1,26 +1,32 @@
 #pragma once
 #include "AudioEffects.h"
 #include <JuceHeader.h>
-
 using namespace juce;
 
-class ReverbEffect : public AudioEffects
+class Reverb : public AudioEffects
 {
 public:
-    ReverbEffect(float roomSize = 0.5f, float damping = 0.5f, float mix = 0.3f);
+    Reverb(float roomSize, float damping, float mix);
+    ~Reverb() noexcept override = default;
 
     void prepare(double sampleRate, int samplesPerBlock) override;
     void process(float* leftChannel, float* rightChannel, int numSamples) override;
     String getName() const override;
+
+    void setRoomSize(float size) { roomSize = jlimit(0.0f, 1.0f, size); updateParameters(); }
+    void setDamping(float damp) { damping = jlimit(0.0f, 1.0f, damp); updateParameters(); }
+    void setWetDryMix(float wetDry) { wetDryMix = jlimit(0.0f, 1.0f, wetDry); updateParameters(); }
+    void setWidth(float w) { width = jlimit(0.0f, 1.0f, w); updateParameters(); }
+
+private:
+    juce::Reverb reverbProcessor;
+    juce::Reverb::Parameters params;
+
+    float roomSize;      // 0.0-1.0, typical: 0.3 (small) to 0.8 (large hall)
+    float damping;       // 0.0-1.0, typical: 0.3 (bright) to 0.7 (dark)
+    float wetDryMix;     // 0.0 (dry) to 1.0 (wet), typical: 0.2-0.4
+
+    double currentSampleRate = 44100.0;
+
+    void updateParameters();
 };
-
-//private:
-//    roomSize;
-//    damping;
-//    wetLevel ;
-//    dryLevel = 1.0f - mix;
-//    width = 1.0f;
-//    reverb.setParameters(params);
-//};
-
-// reverb is actually really hard to do, there is a juce::reverb class that does most of the heavy lifting

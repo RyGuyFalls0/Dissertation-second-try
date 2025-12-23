@@ -36,7 +36,7 @@ float Distortion::hardClip(float sample)
     return sample;
 }
 
-juce::String Distortion::getName() const
+String Distortion::getName() const
 {
     return "Distortion";
 }

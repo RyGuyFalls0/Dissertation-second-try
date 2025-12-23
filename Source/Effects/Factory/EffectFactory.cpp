@@ -73,7 +73,6 @@ std::unique_ptr<AudioEffects> EffectsFactory::createEffect(const String& name, D
     }
 
     default:
-        jassertfalse; 
         break;
     }
 

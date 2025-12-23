@@ -104,7 +104,7 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
 
     auto level = bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples);
     currentLevel.store(level);
-    DBG("Buffer RMS before processing: " << bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples));
+    //DBG("Buffer RMS before processing: " << bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples));
 }
 
 void MainComponent::releaseResources()
@@ -192,7 +192,7 @@ auto MainComponent::getResource(const String &url) -> Resource
                 {
                     effect->prepare(currentSampleRate, 512);
                     newChain->push_back(std::move(effect));
-                    DBG("Hopefully effect is now working");
+                    DBG("New effect");
                 }
             }
             // chain does not store any previous data when effect is added or removed
