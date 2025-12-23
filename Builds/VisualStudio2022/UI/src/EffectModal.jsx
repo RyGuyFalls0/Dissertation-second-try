@@ -1,22 +1,61 @@
 import { useState, useEffect } from "react";
 
+// Default parameter configurations for each effect
+const EFFECT_PARAMS = {
+  Delay: {
+    delayTime: { label: "Delay Time", min: 0, max: 2, step: 0.01, default: 0.5, unit: "s" },
+    feedback: { label: "Feedback", min: 0, max: 0.95, step: 0.01, default: 0.3, unit: "" },
+    wetDryMix: { label: "Mix", min: 0, max: 1, step: 0.01, default: 0.5, unit: "" }
+  },
+  Reverb: {
+    roomSize: { label: "Room Size", min: 0, max: 1, step: 0.01, default: 0.5, unit: "" },
+    damping: { label: "Damping", min: 0, max: 1, step: 0.01, default: 0.5, unit: "" },
+    wetDryMix: { label: "Mix", min: 0, max: 1, step: 0.01, default: 0.3, unit: "" }
+  },
+  Distortion: {
+    drive: { label: "Drive", min: 0, max: 1, step: 0.01, default: 0.5, unit: "" },
+    wetDryMix: { label: "Mix", min: 0, max: 1, step: 0.01, default: 0.8, unit: "" }
+  },
+  Chorus: {
+    rate: { label: "Rate", min: 0.1, max: 10, step: 0.1, default: 1.5, unit: "Hz" },
+    depth: { label: "Depth", min: 0, max: 1, step: 0.01, default: 0.5, unit: "" },
+    wetDryMix: { label: "Mix", min: 0, max: 1, step: 0.01, default: 0.5, unit: "" }
+  }
+};
+
 function EffectModal({ effect, isOpen, onClose, onSave }) {
-  const [value, setValue] = useState(0.5);
+  const [parameters, setParameters] = useState({});
 
   useEffect(() => {
-    // Initialize with existing value if available
-    if (effect?.specifics?.value !== undefined) {
-      setValue(effect.specifics.value);
-    } else {
-      setValue(0.5);
-    }
+    if (!effect) return;
+
+    const effectParams = EFFECT_PARAMS[effect.name] || {};
+    const initialParams = {};
+
+    // Initialize with existing values or defaults
+    Object.keys(effectParams).forEach((paramName) => {
+      const paramConfig = effectParams[paramName];
+      initialParams[paramName] = 
+        effect.specifics?.[paramName] ?? paramConfig.default;
+    });
+
+    setParameters(initialParams);
   }, [effect]);
 
   if (!isOpen || !effect) return null;
 
+  const effectParams = EFFECT_PARAMS[effect.name] || {};
+
   const handleSave = () => {
-    onSave(effect.id, value);
+    onSave(effect.id, parameters);
     onClose();
+  };
+
+  const updateParameter = (paramName, value) => {
+    setParameters((prev) => ({
+      ...prev,
+      [paramName]: parseFloat(value)
+    }));
   };
 
   return (
@@ -24,24 +63,30 @@ function EffectModal({ effect, isOpen, onClose, onSave }) {
       <div className="bg-white rounded-lg p-6 w-96 shadow-xl">
         <h2 className="text-2xl font-bold mb-6 text-center">{effect.name}</h2>
         
-        <div className="mb-6">
-          <div className="flex justify-between mb-2">
-            <span className="text-sm text-gray-600">Value</span>
-            <span className="text-sm font-semibold">{value.toFixed(2)}</span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={value}
-            onChange={(e) => setValue(parseFloat(e.target.value))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-          />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>0</span>
-            <span>1</span>
-          </div>
+        <div className="space-y-5 mb-6">
+          {Object.entries(effectParams).map(([paramName, config]) => (
+            <div key={paramName}>
+              <div className="flex justify-between mb-2">
+                <span className="text-sm text-gray-600">{config.label}</span>
+                <span className="text-sm font-semibold">
+                  {parameters[paramName]?.toFixed(2)}{config.unit}
+                </span>
+              </div>
+              <input
+                type="range"
+                min={config.min}
+                max={config.max}
+                step={config.step}
+                value={parameters[paramName] ?? config.default}
+                onChange={(e) => updateParameter(paramName, e.target.value)}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>{config.min}{config.unit}</span>
+                <span>{config.max}{config.unit}</span>
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="flex gap-3">

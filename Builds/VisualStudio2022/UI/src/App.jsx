@@ -2,7 +2,7 @@ import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
 import { useState, useEffect } from "react"
 import LiveWaveform from "./Waveform";
 import { sendEffectsData } from "./api.jsx"
-import EffectModal from "./EffectModal"; // Add this import
+import EffectModal from "./EffectModal";
 
 function App() {
   const effectsList = [
@@ -11,6 +11,14 @@ function App() {
     { name: "Delay", id: 2 },
     { name: "Distortion", id: 3 }
   ]
+
+  const effectsSpecs = {
+    "Reverb": {},
+    "Chorus": {"rate":1.7, "depth":0.8, "mix":1.0},
+    "Delay": {"delayTime":0.5, "feedback":0.3, "mix":0.5},
+    "Distortion": {"drive":0.5, "mix":1.0},
+    
+  }
 
   const [effects, setEffects] = useState(effectsList)
   const [activeEffects, setActiveEffects] = useState([])
@@ -26,9 +34,10 @@ function App() {
 
   // Add this handler for opening the modal
   const handleEffectClick = (effect) => {
+    const effectSpec = effectsSpecs[effect.name] || {};
     setSelectedEffect({
       ...effect,
-      specifics: activeEffectsMetadata[effect.id]?.specifics || {}
+      specifics: activeEffectsMetadata[effect.id]?.specifics || effectSpec
     });
     setIsModalOpen(true);
   };
@@ -65,7 +74,7 @@ function App() {
         newMetadata[eff.id] = {
           name: eff.name,
           position: index,
-          specifics: {}
+          specifics: effectsSpecs[eff.name]
       };
     });
     setActiveEffectsMetadata(newMetadata);
@@ -201,7 +210,10 @@ function App() {
                                 handleEffectClick(effect);
                               }}
                             >
-                              {effect.name}
+                              <div className="flex items-center justify-center gap-2">
+                                <span>{effect.name}</span>
+                                <span className="text-gray-500 text-sm">▼</span>
+                              </div>
                             </div>
                           </div>
                         )}
