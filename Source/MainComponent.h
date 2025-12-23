@@ -2,9 +2,7 @@
 
 #include <JuceHeader.h>
 #include "Effects/AudioEffects.h"
-#include "Effects/Delay.h"
-//#include "Effects/Reverb.h"
-//#include "Effects/Distortion.h"
+#include "./Effects/Factory/EffectsFactory.h"
 
 using namespace juce;
 using Resource = WebBrowserComponent::Resource;
@@ -35,11 +33,11 @@ private:
     //==============================================================================
     // Your private member variables go here...
 
-    struct EffectInfo 
+    struct EffectInfo
     {
-        juce::String name;
+        String name;
         int position;
-        juce::var specifics;
+        DynamicObject::Ptr specifics;
     };
 
     enum TransportState
@@ -52,7 +50,6 @@ private:
     WebBrowserComponent webView;
     Resource getResource(const String& url);
 
-	Resource handleEffects(const String& url);
 
     Resource handleStartMicrophone();
     Resource handleStopMicrophone();
@@ -60,7 +57,7 @@ private:
     Resource handleFileUpload(const String& url);
     Resource handleGetUploadStatus();
 
-	std::vector<std::unique_ptr<AudioEffects>> effectChain;
+    std::shared_ptr<std::vector<std::unique_ptr<AudioEffects>>> effectChain{ std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>() };
 	double currentSampleRate = 44100;
 
     // extensible list or queue to track which effect should be applied first
