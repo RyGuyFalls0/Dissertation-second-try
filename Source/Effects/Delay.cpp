@@ -6,6 +6,7 @@ using namespace juce;
 
 Delay::Delay(float delayTimeSeconds, float feedback, float mix)
     : delayTime(delayTimeSeconds), feedbackAmount(feedback), wetDryMix(mix)
+    // maybe change these to have jlimit around them -- 1.1
 {
 	// inititialise maximum delay time to 2 seconds at 48kHz
     delayLineLeft.setMaximumDelayInSamples(96000);
