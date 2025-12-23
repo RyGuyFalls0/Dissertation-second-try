@@ -15,7 +15,9 @@ public:
 
     void setRoomSize(float size) { roomSize = jlimit(0.0f, 1.0f, size); updateParameters(); }
     void setDamping(float damp) { damping = jlimit(0.0f, 1.0f, damp); updateParameters(); }
-    \
+    void setWetDryMix(float wetDry) { wetDryMix = jlimit(0.0f, 1.0f, wetDry); updateParameters(); }
+    void setWidth(float w) { width = jlimit(0.0f, 1.0f, w); updateParameters(); }
+
 private:
     juce::Reverb reverbProcessor;
     juce::Reverb::Parameters params;

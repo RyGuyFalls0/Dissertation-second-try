@@ -3,19 +3,43 @@
 <JUCERPROJECT id="Lpmh4A" name="NewProject" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="RmHln0" name="NewProject">
+    <GROUP id="{00003417-5ED4-17B1-DB34-E70CE66C050A}" name="assets">
+      <FILE id="dQtrxW" name="index-bz1e6p3u.js" compile="0" resource="1"
+            file="UI/dist/assets/index-bz1e6p3u.js"/>
+      <FILE id="sfABGr" name="index-r8Kn0C52.css" compile="0" resource="1"
+            file="UI/dist/assets/index-r8Kn0C52.css"/>
+    </GROUP>
     <GROUP id="{D63B9817-EC30-F277-3945-87B972CFD21A}" name="Source">
       <GROUP id="{E2D865AD-733F-414B-1BCF-B48DB4C19AF2}" name="Effects">
         <FILE id="RujjXN" name="AudioEffects.h" compile="0" resource="0" file="Source/Effects/AudioEffects.h"/>
         <FILE id="UrAeGk" name="Delay.cpp" compile="1" resource="0" file="Source/Effects/Delay.cpp"/>
+        <FILE id="t03iSS" name="Chorus.cpp" compile="1" resource="0" file="Source/Effects/Chorus.cpp"/>
+        <FILE id="uEOcu7" name="Chorus.h" compile="0" resource="0" file="Source/Effects/Chorus.h"/>
+        <FILE id="KACRXX" name="Distortion.cpp" compile="1" resource="0" file="Source/Effects/Distortion.cpp"/>
+        <FILE id="MpHWjF" name="EffectFactory.cpp" compile="1" resource="0"
+              file="Source/Effects/Factory/EffectFactory.cpp"/>
+        <FILE id="iQlW7N" name="EffectsFactory.h" compile="0" resource="0"
+              file="Source/Effects/Factory/EffectsFactory.h"/>
+        <FILE id="p78xd5" name="EffectType.cpp" compile="1" resource="0" file="Source/Effects/Factory/EffectType.cpp"/>
+        <FILE id="ySYhgt" name="EffectType.h" compile="0" resource="0" file="Source/Effects/Factory/EffectType.h"/>
+        <FILE id="buEMAq" name="Distortion.h" compile="0" resource="0" file="Source/Effects/Distortion.h"/>
+        <FILE id="JiNDBI" name="EffectType.cpp" compile="1" resource="0" file="Source/Effects/EffectType.cpp"/>
+        <FILE id="Jw62rc" name="EffectType.h" compile="0" resource="0" file="Source/Effects/EffectType.h"/>
         <FILE id="ELAMkn" name="Delay.h" compile="0" resource="0" file="Source/Effects/Delay.h"/>
+        <FILE id="Vvfaty" name="Reverb.h" compile="0" resource="0" file="Source/Effects/Reverb.h"/>
       </GROUP>
       <FILE id="XzGop3" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="OggIy2" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="p6kujg" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
     </GROUP>
+<<<<<<< HEAD
     <FILE id="dTXBAn" name="Distortion.cpp" compile="1" resource="0" file="Source/Effects/Distortion.cpp"/>
     <FILE id="tgA0Gm" name="Reverb.h" compile="0" resource="0" file="Source/Effects/Reverb.h"/>
+=======
+    <FILE id="n6fJs4" name="index.html" compile="0" resource="1" file="UI/dist/index.html"/>
+    <FILE id="z7WeNO" name="vite.svg" compile="0" resource="1" file="UI/dist/vite.svg"/>
+>>>>>>> d8639ac70296640c06c8f8952da376b51a023f2e
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
