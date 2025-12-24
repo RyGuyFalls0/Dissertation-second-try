@@ -3,6 +3,7 @@
 <JUCERPROJECT id="Lpmh4A" name="NewProject" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="RmHln0" name="NewProject">
+    <FILE id="v6brTm" name="Reverb.cpp" compile="1" resource="0" file="Source/Effects/Reverb.cpp"/>
     <GROUP id="{00003417-5ED4-17B1-DB34-E70CE66C050A}" name="assets"/>
     <GROUP id="{D63B9817-EC30-F277-3945-87B972CFD21A}" name="Source">
       <GROUP id="{E2D865AD-733F-414B-1BCF-B48DB4C19AF2}" name="Effects">

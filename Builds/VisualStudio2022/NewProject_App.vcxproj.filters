@@ -679,6 +679,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Effects\Reverb.cpp">
+      <Filter>NewProject</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Effects\Delay.cpp">
       <Filter>NewProject\Source\Effects</Filter>
     </ClCompile>
