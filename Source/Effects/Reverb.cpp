@@ -14,6 +14,7 @@ audiofx::Reverb::Reverb(float roomSize, float damping, float mix)
 void audiofx::Reverb::prepare(double sampleRate, int samplesPerBlock)
 {
     currentSampleRate = sampleRate;
+    reverbProcessor.setSampleRate(sampleRate);
     reverbProcessor.reset();
     updateParameters();
 }

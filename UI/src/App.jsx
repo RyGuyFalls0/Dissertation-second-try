@@ -1,6 +1,7 @@
 import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
 import { useState, useEffect } from "react"
 import LiveWaveform from "./Waveform";
+import Metronome from "./Metronome.jsx"
 import { sendEffectsData } from "./api.jsx"
 import EffectModal from "./EffectModal";
 
