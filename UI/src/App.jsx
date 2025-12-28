@@ -1,7 +1,6 @@
 import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
 import { useState, useEffect } from "react"
-import LiveWaveform from "./Waveform";
-import Metronome from "./Metronome.jsx"
+import Carousel from "./Carousel";
 import { sendEffectsData } from "./api.jsx"
 import EffectModal from "./EffectModal";
 
@@ -129,8 +128,8 @@ function App() {
       </a>
     </header>
 
-    <div className="p-6 flex justify-center">
-        <LiveWaveform />
+    <div >
+        <Carousel />
       </div>
 
     <main className="flex-1 flex flex-col items-center justify-center p-6">

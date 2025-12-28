@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import "./metronome.css";
 
 const click1 = "/assets/Metronome_click_1.mp3";
 const click2 = "/assets/Metronome_click_2.mp3";
