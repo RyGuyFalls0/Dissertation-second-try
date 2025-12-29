@@ -21,32 +21,25 @@ function Carousel() {
       maxWidth: '800px', 
       margin: '0 auto',
     }}>
-      <Slider {...settings}>
-        <div style={{ 
-          height: '400px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center' 
-        }}>
+    <Slider {...settings}>
+      <div className="h-[200px] relative">
+        <div className="absolute inset-0 flex items-center justify-center">
           <LiveWaveform />
         </div>
-        <div style={{ 
-          height: '400px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center' 
-        }}>
+      </div>
+
+      <div className="h-[200px] relative">
+        <div className="absolute inset-0 flex items-center justify-center">
           <Metronome />
         </div>
-        <div style={{ 
-          height: '400px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center' 
-        }}>
-          <h3>Slide 3</h3>
+      </div>
+
+      <div className="h-[200px] relative">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <h3 className="text-2xl font-semibold">Slide 3</h3>
         </div>
-      </Slider>
+      </div>
+    </Slider>
     </div>
   );
 }
