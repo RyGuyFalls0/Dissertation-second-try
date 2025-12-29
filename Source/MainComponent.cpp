@@ -54,6 +54,7 @@ namespace
 //==============================================================================
 MainComponent::MainComponent()
     : transportState(Stopped),
+      AudioAppComponent(deviceManager),
       webView(WebBrowserComponent::Options{}
                   .withBackend(WebBrowserComponent::Options::Backend::webview2)
                   .withWinWebView2Options(
@@ -66,6 +67,8 @@ MainComponent::MainComponent()
     setSize(800, 600);
     addAndMakeVisible(webView);
     webView.goToURL(webView.getResourceProviderRoot());
+
+    deviceManager.initialise(2, 2, nullptr, true);
     setAudioChannels(2, 2);
 }
 
@@ -118,6 +121,50 @@ void MainComponent::paint(Graphics &g) { ; }
 void MainComponent::resized()
 {
     webView.setBounds(getLocalBounds());
+}
+
+WebBrowserComponent::Resource MainComponent::getAudioDevices() {
+    auto setup = deviceManager.getAudioDeviceSetup();
+    auto* deviceType = deviceManager.getCurrentDeviceTypeObject();
+
+    if (deviceType == nullptr) {
+        auto errorResponse = R"({"status": "error", "message": "No device type available"})";
+        return WebBrowserComponent::Resource{
+            stringToVector(errorResponse),
+            "application/json"
+        };
+    }
+
+    DynamicObject::Ptr devicesResult = new DynamicObject();
+
+    if (setup.inputDeviceName.isNotEmpty() && setup.outputDeviceName.isNotEmpty()) {
+        devicesResult->setProperty("status", "success");
+        devicesResult->setProperty("currentInput", setup.inputDeviceName);
+        devicesResult->setProperty("currentOutput", setup.outputDeviceName);
+
+        Array<var> inputDevices;
+        Array<var> outputDevices;
+
+        for (auto& name : deviceType->getDeviceNames(true))
+            inputDevices.add(name);
+
+        for (auto& name : deviceType->getDeviceNames(false))
+            outputDevices.add(name);
+
+        devicesResult->setProperty("inputDevices", inputDevices);
+        devicesResult->setProperty("outputDevices", outputDevices);
+    }
+    else {
+        devicesResult->setProperty("status", "error");
+        devicesResult->setProperty("message", "No audio devices configured");
+    }
+
+    String jsonResponse = JSON::toString(var(devicesResult.get()));
+
+    return WebBrowserComponent::Resource{
+        stringToVector(jsonResponse),
+        "application/json"
+    };
 }
 
 auto MainComponent::getResource(const String &url) -> Resource
@@ -201,6 +248,9 @@ auto MainComponent::getResource(const String &url) -> Resource
             auto response = R"({"status": "success"})";
             return Resource{stringToVector(response), "application/json"};
         }
+        else if (url.startsWith("/api/audioList")) {
+            return getAudioDevices();
+        }
     }
 
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
@@ -248,49 +298,49 @@ Resource MainComponent::handleGetLevel()
     return Resource{stringToVector(response), "application/json"};
 }
 
-Resource MainComponent::handleFileUpload(const String &url)
-{
-    fileChooser = std::make_unique<FileChooser>("Select an audio file to upload",
-                                                File::getSpecialLocation(File::userDocumentsDirectory),
-                                                "*.wav;*.mp3;*.aiff;*.flac");
+//Resource MainComponent::handleFileUpload(const String &url)
+//{
+//    fileChooser = std::make_unique<FileChooser>("Select an audio file to upload",
+//                                                File::getSpecialLocation(File::userDocumentsDirectory),
+//                                                "*.wav;*.mp3;*.aiff;*.flac");
+//
+//    auto flags = FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles;
+//
+//    fileChooser->launchAsync(flags, [this](const FileChooser &chooser)
+//                             {
+//            auto file = chooser.getResult();
+//            if (file != File{})
+//            {
+//                uploadedFile = file;
+//                DBG("File uploaded: " + uploadedFile.getFullPathName());
+//            }
+//            else
+//            {
+//                DBG("File selection cancelled");
+//            } });
+//    auto response = R"({"status": "success", "message": "File chooser opened"})";
+//    return Resource{stringToVector(response), "application/json"};
+//}
 
-    auto flags = FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles;
-
-    fileChooser->launchAsync(flags, [this](const FileChooser &chooser)
-                             {
-            auto file = chooser.getResult();
-            if (file != File{})
-            {
-                uploadedFile = file;
-                DBG("File uploaded: " + uploadedFile.getFullPathName());
-            }
-            else
-            {
-                DBG("File selection cancelled");
-            } });
-    auto response = R"({"status": "success", "message": "File chooser opened"})";
-    return Resource{stringToVector(response), "application/json"};
-}
-
-Resource MainComponent::handleGetUploadStatus()
-{
-    DynamicObject::Ptr jsonObject = new DynamicObject();
-    jsonObject->setProperty("status", "success");
-
-    if (uploadedFile != File{})
-    {
-        jsonObject->setProperty("uploaded", true);
-        jsonObject->setProperty("filename", uploadedFile.getFileName());
-        jsonObject->setProperty("path", uploadedFile.getFullPathName());
-    }
-    else
-    {
-        jsonObject->setProperty("uploaded", false);
-    }
-
-    String response = JSON::toString(var(jsonObject.get()));
-    return Resource{stringToVector(response), "application/json"};
-}
+//Resource MainComponent::handleGetUploadStatus()
+//{
+//    DynamicObject::Ptr jsonObject = new DynamicObject();
+//    jsonObject->setProperty("status", "success");
+//
+//    if (uploadedFile != File{})
+//    {
+//        jsonObject->setProperty("uploaded", true);
+//        jsonObject->setProperty("filename", uploadedFile.getFileName());
+//        jsonObject->setProperty("path", uploadedFile.getFullPathName());
+//    }
+//    else
+//    {
+//        jsonObject->setProperty("uploaded", false);
+//    }
+//
+//    String response = JSON::toString(var(jsonObject.get()));
+//    return Resource{stringToVector(response), "application/json"};
+//}
 
 // look into vectorised transformations
 // look into other juce applications to understand gaps in the market and directions to take the project

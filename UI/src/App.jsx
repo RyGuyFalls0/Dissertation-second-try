@@ -1,7 +1,7 @@
 import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
 import { useState, useEffect } from "react"
 import Carousel from "./Carousel";
-import { sendEffectsData } from "./api.jsx"
+import { sendEffectsData, getAudioList } from "./api.jsx"
 import EffectModal from "./EffectModal";
 
 function App() {
@@ -23,6 +23,8 @@ function App() {
   const [effects, setEffects] = useState(effectsList)
   const [activeEffects, setActiveEffects] = useState([])
   const [activeEffectsMetadata, setActiveEffectsMetadata] = useState({})
+
+  const [audioList, setAudioList] = useState({})
   
   // Add these state variables for the modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,6 +33,17 @@ function App() {
   useEffect(() => {
     sendEffectsData(activeEffectsMetadata);
   }, [activeEffectsMetadata]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getAudioList();
+        setAudioList(data);
+      } catch (error) {
+        console.error("Failed to load audio devices:", error);
+      }
+    })();
+  }, []);
 
   // Add this handler for opening the modal
   const handleEffectClick = (effect) => {
@@ -119,7 +132,7 @@ function App() {
     }
   }
 
-  return (
+return (
   <div className="min-h-screen bg-white flex flex-col">
     <header className="bg-gray-800 text-white flex justify-between items-center px-6 py-3">
       <h1 className="text-2xl font-bold">TBC</h1>
@@ -137,83 +150,31 @@ function App() {
 
       <div className="grid grid-cols-2 gap-12 w-full max-w-3xl">
         <DragDropContext onDragEnd={handleDragDrop}>
-          <div className="bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
-            <div className="card">
-              <div className="header">
-                <h3 className="text-lg font-semibold mb-4">Oyster</h3>
-              </div>
-              <Droppable droppableId="oyster" type="effects">
-              {(provided, snapshot) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className={`flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 ${
-                    snapshot.isDraggingOver ? "opacity-70" : "opacity-100 bg-gray-50"
-                  }`}
-                >
-                  {effects.map((effect, index) => (
-                    <Draggable draggableId={String(effect.name)} key={effect.id} index={index}>
-                      {(provided) => (
-                        <div
-                          {...provided.dragHandleProps}
-                          {...provided.draggableProps}
-                          ref={provided.innerRef}
-                        >
-                          <div className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md text-center cursor-grab">
-                            {effect.name}
-                          </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
+          <div className="flex flex-col">
+            <div className="bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
+              <div className="card">
+                <div className="header">
+                  <h3 className="text-lg font-semibold mb-4">Oyster</h3>
                 </div>
-              )}
-            </Droppable>
-            </div>
-          </div>
-
-          <div className="bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
-            <div className="card">
-              <div className="header">
-                <h3 className="text-lg font-semibold mb-4">Active Effects ({activeEffects.length}/5)</h3>
-              </div>
-              <Droppable droppableId="activeEffects" type="effects"  isDropDisabled={activeEffects.length == 5}>
+                <Droppable droppableId="oyster" type="effects">
                 {(provided, snapshot) => (
                   <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
-                    className={`p-4 rounded-xl min-h-[200px] transition-colors duration-200 ${
-                      snapshot.isDraggingOver ? 'bg-blue-100' : 'bg-gray-50'
+                    className={`flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 ${
+                      snapshot.isDraggingOver ? "opacity-70" : "opacity-100 bg-gray-50"
                     }`}
                   >
-                    {activeEffects.map((effect, index) => (
-                      <Draggable
-                        draggableId={String(effect.id)}
-                        key={effect.id}
-                        index={index}
-                      >
+                    {effects.map((effect, index) => (
+                      <Draggable draggableId={String(effect.name)} key={effect.id} index={index}>
                         {(provided) => (
                           <div
                             {...provided.dragHandleProps}
                             {...provided.draggableProps}
                             ref={provided.innerRef}
-                            className={`rounded-lg transition-colors ${
-                            snapshot.isDraggingOver ? 'bg-blue-100' : 'bg-transparent'
-                            }`}
                           >
-                            {/* Add onClick handler here */}
-                            <div 
-                              className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md text-center cursor-grab"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEffectClick(effect);
-                              }}
-                            >
-                              <div className="flex items-center justify-center gap-2">
-                                <span>{effect.name}</span>
-                                <span className="text-gray-500 text-sm">▼</span>
-                              </div>
+                            <div className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md text-center cursor-grab">
+                              {effect.name}
                             </div>
                           </div>
                         )}
@@ -223,6 +184,97 @@ function App() {
                   </div>
                 )}
               </Droppable>
+              </div>
+            </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Input Device
+              </label>
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white">
+                <option>Default Input</option>
+                <option>Microphone 1</option>
+                <option>Microphone 2</option>
+                <option>Line In</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <div className="bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
+              <div className="card">
+                <div className="header">
+                  <h3 className="text-lg font-semibold mb-4">Active Effects ({activeEffects.length}/5)</h3>
+                </div>
+                <Droppable droppableId="activeEffects" type="effects"  isDropDisabled={activeEffects.length == 5}>
+                  {(provided, snapshot) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className={`p-4 rounded-xl min-h-[200px] transition-colors duration-200 ${
+                        snapshot.isDraggingOver ? 'bg-blue-100' : 'bg-gray-50'
+                      }`}
+                    >
+                      {activeEffects.map((effect, index) => (
+                        <Draggable
+                          draggableId={String(effect.id)}
+                          key={effect.id}
+                          index={index}
+                        >
+                          {(provided) => (
+                            <div
+                              {...provided.dragHandleProps}
+                              {...provided.draggableProps}
+                              ref={provided.innerRef}
+                              className={`rounded-lg transition-colors ${
+                              snapshot.isDraggingOver ? 'bg-blue-100' : 'bg-transparent'
+                              }`}
+                            >
+                              {/* Add onClick handler here */}
+                              <div 
+                                className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md text-center cursor-grab"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEffectClick(effect);
+                                }}
+                              >
+                                <div className="flex items-center justify-center gap-2">
+                                  <span>{effect.name}</span>
+                                  <span className="text-gray-500 text-sm">▼</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
+            </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Output Device
+              </label>
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white">
+                {audioList?.status === 'success' ? (
+                  <>
+                    <option value={audioList.currentOutput} selected>
+                      {audioList.currentOutput} (Current)
+                    </option>
+                    
+                    {audioList.outputDevices
+                      ?.filter(device => device !== audioList.currentOutput)
+                      .map((device, index) => (
+                        <option key={index} value={device}>
+                          {device}
+                        </option>
+                      ))}
+                  </>
+                ) : (
+                  <option>Loading devices...</option>
+                )}
+              </select>
             </div>
           </div>
         </DragDropContext>
