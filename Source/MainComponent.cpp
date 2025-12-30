@@ -169,6 +169,76 @@ WebBrowserComponent::Resource MainComponent::getAudioDevices() {
     };
 }
 
+
+var MainComponent::getJsonParameter(const String& url)
+{
+    URL parsedUrl(url);
+    auto paramValues = parsedUrl.getParameterValues();
+    String metadataJson = paramValues[0];
+
+    if (metadataJson.isEmpty())
+        return var(); // Return empty var, not a Resource
+
+    auto result = JSON::parse(metadataJson);
+
+    if (!result.isObject() && !result.isArray())
+        return var(); // Return empty var if parsing failed
+
+    return result;
+}
+
+
+Resource MainComponent::setAudioDevices(const String& url) {
+    auto json = getJsonParameter(url);
+
+    if (!json.isObject() || json.getDynamicObject()->getProperties().size() == 0)
+    {
+        String response = R"({"status": "error", "message": "Missing or empty config parameter"})";
+        return Resource{
+            stringToVector(response),
+            "application/json"
+        };
+    }
+
+    auto jsonObject = json.getDynamicObject();
+    String outputDevice = jsonObject->getProperty("outputDevice").toString();
+    String inputDevice = jsonObject->getProperty("inputDevice").toString();
+
+    DBG("Setting output device: " + outputDevice);
+    DBG("Setting input device: " + inputDevice);
+
+    auto newSetup = deviceManager.getAudioDeviceSetup();
+
+    if (outputDevice.isNotEmpty())
+        newSetup.outputDeviceName = outputDevice;
+
+    if (inputDevice.isNotEmpty())
+        newSetup.inputDeviceName = inputDevice;
+
+    String error = deviceManager.setAudioDeviceSetup(newSetup, true);
+
+    if (error.isEmpty())
+    {
+        String response = R"({"status": "success", "message": "Audio devices updated successfully"})";
+        return Resource{
+            stringToVector(response),
+            "application/json"
+        };
+    }
+    else
+    {
+        DynamicObject::Ptr errorObj = new DynamicObject();
+        errorObj->setProperty("status", "error");
+        errorObj->setProperty("message", error);
+
+        String response = JSON::toString(var(errorObj.get()));
+        return Resource{
+            stringToVector(response),
+            "application/json"
+        };
+    }
+}
+
 auto MainComponent::getResource(const String &url) -> Resource
 {
     if (url.startsWith("/api/"))
@@ -178,31 +248,15 @@ auto MainComponent::getResource(const String &url) -> Resource
         // Adding delay effect, adding distortion, adding reverb, and adding
         if (url.startsWith("/api/effects"))
         {
-            DBG("Effects endpoint called from frontend");
-
-            // TODO: Parse request body + update audio chain here
-            URL parsedUrl(url);
-            DBG("URL: " + url);
-
-            // probably not safe as accessing array without checking size
-            auto paramValues = parsedUrl.getParameterValues(); // returns an array of all the values, so we just want the first one (metadata)
-
-            String metadataJson = paramValues[0];
-            DBG("Metadata JSON: " + metadataJson);
-
-            if (metadataJson == "{}")
+            auto json = getJsonParameter(url);
+            if (!json.isObject() || json.getDynamicObject()->getProperties().size() == 0)
             {
                 effectChain->clear();
-                String errorResponse = R"({"status": "success", "message": "Missing metadata parameter"})";
-                return WebBrowserComponent::Resource{
-                    stringToVector(errorResponse),
-                    "application/json"};
-            }
-            auto json = JSON::parse(metadataJson);
-            if (!json.isObject())
-            {
-                String errorResponse = R"({"error":"Invalid JSON"})";
-                return Resource{stringToVector(errorResponse), "application/json"};
+                String response = R"({"status": "success", "message": "Missing or empty metadata parameter"})";
+                return Resource{
+                    stringToVector(response),
+                    "application/json"
+                };
             }
 
             auto jsonObject = json.getDynamicObject();
@@ -241,7 +295,6 @@ auto MainComponent::getResource(const String &url) -> Resource
                 {
                     effect->prepare(currentSampleRate, 512);
                     newChain->push_back(std::move(effect));
-                    DBG("New effect");
                 }
             }
             // chain does not store any previous data when effect is added or removed
@@ -253,12 +306,14 @@ auto MainComponent::getResource(const String &url) -> Resource
         else if (url.startsWith("/api/audioList")) {
             return getAudioDevices();
         }
+        else if (url.startsWith("/api/setAudioIO")) {
+            return setAudioDevices();
+        }
     }
 
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
         .getChildFile("UI")
         .getChildFile("dist");
-    DBG("Resource root: " + resourceFileRoot.getFullPathName());
 
     const auto resourceToRetrieve = url == "/" ? "index.html"
                                                : url.fromFirstOccurrenceOf("/", false, false);
