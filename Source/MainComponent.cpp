@@ -112,7 +112,7 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
 
 void MainComponent::releaseResources()
 {
-    effectChain->clear();
+
 }
 
 //==============================================================================
@@ -123,7 +123,14 @@ void MainComponent::resized()
     webView.setBounds(getLocalBounds());
 }
 
-WebBrowserComponent::Resource MainComponent::getAudioDevices() {
+Resource MainComponent::standardError(const String& message) {
+    return Resource{
+        stringToVector(message),
+        "application / json"
+    };
+}
+
+Resource MainComponent::getAudioDevices() {
     auto setup = deviceManager.getAudioDeviceSetup();
     auto* deviceType = deviceManager.getCurrentDeviceTypeObject();
 
@@ -194,10 +201,7 @@ Resource MainComponent::setAudioDevices(const String& url) {
     if (!json.isObject() || json.getDynamicObject()->getProperties().size() == 0)
     {
         String response = R"({"status": "error", "message": "Missing or empty config parameter"})";
-        return Resource{
-            stringToVector(response),
-            "application/json"
-        };
+        return standardError(response);
     }
 
     auto jsonObject = json.getDynamicObject();
@@ -220,24 +224,67 @@ Resource MainComponent::setAudioDevices(const String& url) {
     if (error.isEmpty())
     {
         String response = R"({"status": "success", "message": "Audio devices updated successfully"})";
-        return Resource{
-            stringToVector(response),
-            "application/json"
-        };
+        return standardError(response);
     }
     else
     {
-        DynamicObject::Ptr errorObj = new DynamicObject();
-        errorObj->setProperty("status", "error");
-        errorObj->setProperty("message", error);
-
-        String response = JSON::toString(var(errorObj.get()));
-        return Resource{
-            stringToVector(response),
-            "application/json"
-        };
+        String response = R"({"status": "error", "message": ")" + error + R"("})";
+        return standardError(response);
     }
 }
+
+Resource MainComponent::createEffectsChain(const String& url) {
+    auto json = getJsonParameter(url);
+    if (!json.isObject() || json.getDynamicObject()->getProperties().size() == 0)
+    {
+        effectChain->clear();
+        String response = R"({"status": "success", "message": "Missing or empty metadata parameter"})";
+        return standardError(response);
+    }
+
+    auto jsonObject = json.getDynamicObject();
+
+    std::vector<std::pair<int, EffectInfo>> sortedEffects;
+
+    for (auto& prop : jsonObject->getProperties())
+    {
+        auto effectId = prop.name.toString();
+        auto effectData = prop.value.getDynamicObject();
+
+        if (effectData != nullptr)
+        {
+            EffectInfo info;
+            info.name = effectData->getProperty("name").toString();
+            info.position = (int)effectData->getProperty("position");
+            info.specifics = effectData->getProperty("specifics").getDynamicObject();
+
+            sortedEffects.push_back({ info.position, info });
+        }
+    }
+
+    std::sort(sortedEffects.begin(), sortedEffects.end(),
+        [](const auto& a, const auto& b)
+        { return a.first < b.first; });
+
+    auto newChain = std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>();
+    newChain->reserve(5); // assuming a max of 5 effects for now
+    for (const auto& [pos, effectInfo] : sortedEffects)
+    {
+        std::unique_ptr<AudioEffects> effect;
+        effect = EffectsFactory::createEffect(effectInfo.name, effectInfo.specifics);
+        if (effect)
+        {
+            effect->prepare(currentSampleRate, 512);
+            newChain->push_back(std::move(effect));
+        }
+    }
+    // chain does not store any previous data when effect is added or removed
+    std::atomic_store(&effectChain, newChain);
+
+    auto response = R"({"status": "success"})";
+    return Resource{ stringToVector(response), "application/json" };
+}
+
 
 auto MainComponent::getResource(const String &url) -> Resource
 {
@@ -248,66 +295,13 @@ auto MainComponent::getResource(const String &url) -> Resource
         // Adding delay effect, adding distortion, adding reverb, and adding
         if (url.startsWith("/api/effects"))
         {
-            auto json = getJsonParameter(url);
-            if (!json.isObject() || json.getDynamicObject()->getProperties().size() == 0)
-            {
-                effectChain->clear();
-                String response = R"({"status": "success", "message": "Missing or empty metadata parameter"})";
-                return Resource{
-                    stringToVector(response),
-                    "application/json"
-                };
-            }
-
-            auto jsonObject = json.getDynamicObject();
-
-            std::vector<std::pair<int, EffectInfo>> sortedEffects;
-
-            for (auto &prop : jsonObject->getProperties())
-            {
-                auto effectId = prop.name.toString();
-                auto effectData = prop.value.getDynamicObject();
-
-                if (effectData != nullptr)
-                {
-                    EffectInfo info;
-                    info.name = effectData->getProperty("name").toString();
-                    info.position = (int)effectData->getProperty("position");
-                    info.specifics = effectData->getProperty("specifics").getDynamicObject();
-
-                    sortedEffects.push_back({info.position, info});
-                }
-            }
-
-            std::sort(sortedEffects.begin(), sortedEffects.end(),
-                      [](const auto &a, const auto &b)
-                      { return a.first < b.first; });
-
-            // Add effects to the chain in order
-			// new chain is created to avoid threading issues
-            auto newChain = std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>();
-			newChain->reserve(5); // assuming a max of 5 effects for now
-            for (const auto &[pos, effectInfo] : sortedEffects)
-            {
-                std::unique_ptr<AudioEffects> effect;
-                effect = EffectsFactory::createEffect(effectInfo.name, effectInfo.specifics);
-                if (effect)
-                {
-                    effect->prepare(currentSampleRate, 512);
-                    newChain->push_back(std::move(effect));
-                }
-            }
-            // chain does not store any previous data when effect is added or removed
-            std::atomic_store(&effectChain, newChain);
-
-            auto response = R"({"status": "success"})";
-            return Resource{stringToVector(response), "application/json"};
+            return createEffectsChain(url);
         }
         else if (url.startsWith("/api/audioList")) {
             return getAudioDevices();
         }
         else if (url.startsWith("/api/setAudioIO")) {
-            return setAudioDevices();
+            return setAudioDevices(url);
         }
     }
 

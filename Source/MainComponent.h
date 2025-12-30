@@ -56,9 +56,12 @@ private:
   /*  Resource handleFileUpload(const String& url);*/
     //Resource handleGetUploadStatus();
     Resource getAudioDevices();
+    Resource createEffectsChain(const String& url);
 
-    var getJsonParameter(const String& url);
+    Resource standardError(const String& message);
     Resource setAudioDevices(const String& url);
+    var getJsonParameter(const String& url);
+
 
     std::shared_ptr<std::vector<std::unique_ptr<AudioEffects>>> effectChain{ std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>() };
 	double currentSampleRate = 44100;

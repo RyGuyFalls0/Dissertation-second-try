@@ -1,7 +1,7 @@
 import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
 import { useState, useEffect } from "react"
 import Carousel from "./Carousel";
-import { sendEffectsData, getAudioList } from "./api.jsx"
+import { sendEffectsData, getAudioList, setAudioIO } from "./api.jsx"
 import EffectModal from "./EffectModal";
 
 function App() {
@@ -34,17 +34,21 @@ function App() {
     sendEffectsData(activeEffectsMetadata);
   }, [activeEffectsMetadata]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        console.log("tring to get audio list in App.jsx")
-        const data = await getAudioList();
-        setAudioList(data);
-      } catch (error) {
-        console.error("Failed to load audio devices:", error);
-      }
-    })();
-  }, []);
+useEffect(() => {
+  const fetchAudioList = async () => {
+    try {
+      console.log("trying to get audio list in App.jsx");
+      const data = await getAudioList();
+      setAudioList(data);
+    } catch (error) {
+      console.error("Failed to load audio devices:", error);
+    }
+  };
+  // update audioList every 10s
+  fetchAudioList();
+  const interval = setInterval(fetchAudioList, 10000);
+  return () => clearInterval(interval);
+}, []);
 
   const handleEffectClick = (effect) => {
     const effectSpec = effectsSpecs[effect.name] || {};
@@ -72,8 +76,22 @@ function App() {
         outputDevice: selectedDevice,
         inputDevice: audioList.currentInput
       });
+    
+      const updatedList = await getAudioList();
+      setAudioList(updatedList);
+    } catch (error) {
+      console.error("Failed to change output device:", error);
+    }
+    };
+
+    const handleInputDeviceChange = async (event) => {
+    const selectedDevice = event.target.value;
+    try {
+      await setAudioIO({
+        outputDevice: audioList.currentOutput,
+        inputDevice: selectedDevice
+      });
       
-      // Optionally refresh the audio list to confirm the change
       const updatedList = await getAudioList();
       setAudioList(updatedList);
     } catch (error) {
@@ -205,11 +223,27 @@ return (
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Input Device
               </label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white">
-                <option>Default Input</option>
-                <option>Microphone 1</option>
-                <option>Microphone 2</option>
-                <option>Line In</option>
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
+                onChange={handleInputDeviceChange}
+                value={audioList?.currentInput || ''}
+              >
+                {audioList?.status === 'success' ? (
+                  <>
+                    <option value={audioList.currentInput} selected>
+                      {audioList.currentInput} (Current)
+                    </option>
+                    
+                    {audioList.inputDevices
+                      ?.filter(device => device !== audioList.currentInput)
+                      .map((device, index) => (
+                        <option key={index} value={device}>
+                          {device}
+                        </option>
+                      ))}
+                  </>
+                ) : (
+                  <option>Loading devices...</option>
+                )}
               </select>
             </div>
           </div>
@@ -294,6 +328,7 @@ return (
                 )}
               </select>
             </div>
+            
           </div>
         </DragDropContext>
       </div>
