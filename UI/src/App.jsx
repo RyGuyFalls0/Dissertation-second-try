@@ -37,6 +37,7 @@ function App() {
   useEffect(() => {
     (async () => {
       try {
+        console.log("tring to get audio list in App.jsx")
         const data = await getAudioList();
         setAudioList(data);
       } catch (error) {
@@ -45,7 +46,6 @@ function App() {
     })();
   }, []);
 
-  // Add this handler for opening the modal
   const handleEffectClick = (effect) => {
     const effectSpec = effectsSpecs[effect.name] || {};
     setSelectedEffect({
@@ -55,7 +55,6 @@ function App() {
     setIsModalOpen(true);
   };
 
-  // Add this handler for saving effect parameters
   const handleSaveEffectValue = (effectId, value) => {
     setActiveEffectsMetadata(prev => ({
       ...prev,
@@ -65,6 +64,22 @@ function App() {
       }
     }));
   };
+
+  const handleOutputDeviceChange = async (event) => {
+    const selectedDevice = event.target.value;
+    try {
+      await setAudioIO({
+        outputDevice: selectedDevice,
+        inputDevice: audioList.currentInput
+      });
+      
+      // Optionally refresh the audio list to confirm the change
+      const updatedList = await getAudioList();
+      setAudioList(updatedList);
+    } catch (error) {
+      console.error("Failed to change output device:", error);
+    }
+    };
 
   const handleDragDrop = (results) => {
     const {source, destination, type} = results;
@@ -256,7 +271,10 @@ return (
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Output Device
               </label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white">
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
+                onChange={handleOutputDeviceChange}
+                value={audioList?.currentOutput || ''}
+              >
                 {audioList?.status === 'success' ? (
                   <>
                     <option value={audioList.currentOutput} selected>

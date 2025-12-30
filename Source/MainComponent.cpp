@@ -43,11 +43,11 @@ namespace
         return result;
     }
 
-    static std::vector<std::byte> stringToVector(const String &str)
-    {
-        std::vector<std::byte> result(str.length());
-        std::memcpy(result.data(), str.toRawUTF8(), str.length());
-        return result;
+    static std::vector<std::byte> stringToVector(const String &str) {
+    auto utf8 = str.toRawUTF8();
+    auto numBytes = str.getNumBytesAsUTF8();
+    return std::vector<std::byte>(reinterpret_cast<const std::byte*>(utf8), 
+                                   reinterpret_cast<const std::byte*>(utf8) + numBytes);
     }
 };
 
@@ -129,6 +129,7 @@ WebBrowserComponent::Resource MainComponent::getAudioDevices() {
 
     if (deviceType == nullptr) {
         auto errorResponse = R"({"status": "error", "message": "No device type available"})";
+        DBG("No device type in getAudioDevices()");
         return WebBrowserComponent::Resource{
             stringToVector(errorResponse),
             "application/json"
@@ -160,6 +161,7 @@ WebBrowserComponent::Resource MainComponent::getAudioDevices() {
     }
 
     String jsonResponse = JSON::toString(var(devicesResult.get()));
+    DBG("Generated JSON: " + jsonResponse);
 
     return WebBrowserComponent::Resource{
         stringToVector(jsonResponse),
