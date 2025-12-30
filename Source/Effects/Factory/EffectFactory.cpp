@@ -21,8 +21,8 @@ std::unique_ptr<AudioEffects> EffectsFactory::createEffect(const String& name, D
             if (specs->hasProperty("feedback"))
                 feedback = (float)specs->getProperty("feedback");
 
-            if (specs->hasProperty("mix"))
-                mix = (float)specs->getProperty("mix");
+            if (specs->hasProperty("wetDryMix"))
+                mix = (float)specs->getProperty("wetDryMix");
         }
 
         effect = std::make_unique<Delay>(delayTime, feedback, mix);
@@ -46,8 +46,8 @@ std::unique_ptr<AudioEffects> EffectsFactory::createEffect(const String& name, D
             if (specs->hasProperty("depth"))
                 depth = (float)specs->getProperty("depth");
 
-            if (specs->hasProperty("mix"))
-                mix = (float)specs->getProperty("mix");
+            if (specs->hasProperty("wetDryMix"))
+                mix = (float)specs->getProperty("wetDryMix");
         }
 
         effect = std::make_unique<Chorus>(rate, depth, mix, phase);
@@ -64,13 +64,31 @@ std::unique_ptr<AudioEffects> EffectsFactory::createEffect(const String& name, D
             if (specs->hasProperty("drive"))
                 drive = (float)specs->getProperty("drive");
 
-            if (specs->hasProperty("mix"))
-                mix = (float)specs->getProperty("mix");
+            if (specs->hasProperty("wetDryMix"))
+                mix = (float)specs->getProperty("wetDryMix");
         }
 
         effect = std::make_unique<Distortion>(drive, mix);
         break;
     }
+
+    case EffectType::Reverb:
+    {
+        float roomSize = 0.5f;
+        float damping = 0.5f;
+        float mix = 0.3f;
+        if (specs != nullptr)
+        {
+            if (specs->hasProperty("roomSize"))
+                roomSize = (float)specs->getProperty("roomSize");
+            if (specs->hasProperty("damping"))
+                damping = (float)specs->getProperty("damping");
+            if (specs->hasProperty("wetDryMix"))
+                mix = (float)specs->getProperty("wetDryMix");
+        }
+        effect = std::make_unique<audiofx::Reverb>(roomSize, damping, mix);
+        break;
+	}
 
     default:
         break;

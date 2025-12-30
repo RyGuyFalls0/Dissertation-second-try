@@ -148,6 +148,8 @@ Resource MainComponent::getAudioDevices() {
     // Check if devices are configured
     if (setup.inputDeviceName.isEmpty() || setup.outputDeviceName.isEmpty()) {
         DBG("No devices configured, attempting to reinitialize...");
+
+        // Try to reinitialize with default devices
         String error = deviceManager.initialise(
             2, 
             2,

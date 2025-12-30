@@ -6,18 +6,18 @@ import EffectModal from "./EffectModal";
 
 function App() {
   const effectsList = [
-    { name: "Reverb", id: 0 },
-    { name: "Chorus", id: 1 },
-    { name: "Delay", id: 2 },
-    { name: "Distortion", id: 3 }
+    { name: "Reverb", id: 0, specifics: {} },
+    { name: "Chorus", id: 1, specifics: {} },
+    { name: "Delay", id: 2, specifics: {}  },
+    { name: "Distortion", id: 3, specifics: {} }
   ]
 
+  // not currently used, more for reference
   const effectsSpecs = {
-    "Reverb": {},
-    "Chorus": {"rate":1.7, "depth":0.8, "mix":1.0},
-    "Delay": {"delayTime":0.5, "feedback":0.3, "mix":0.5},
-    "Distortion": {"drive":0.5, "mix":1.0},
-    
+    "Reverb": {"roomSize": 0.5, "damping": 0.5, "wetDryMix": 0.3},
+    "Chorus": {"rate":1.7, "depth":0.8, "wetDryMix":1.0},
+    "Delay": {"delayTime":0.5, "feedback":0.3, "wetDryMix":0.5},
+    "Distortion": {"drive":0.5, "wetDryMix":1.0},
   }
 
   const [effects, setEffects] = useState(effectsList)
@@ -48,7 +48,7 @@ function App() {
       ...prev,
       [effectId]: {
         ...prev[effectId],
-        specifics: { value }
+        specifics: value 
       }
     }));
   };
@@ -74,7 +74,7 @@ function App() {
         newMetadata[eff.id] = {
           name: eff.name,
           position: index,
-          specifics: effectsSpecs[eff.name]
+          specifics: activeEffectsMetadata[eff.id]?.specifics || {}
       };
     });
     setActiveEffectsMetadata(newMetadata);

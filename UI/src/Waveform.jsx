@@ -21,19 +21,11 @@ export default function LiveWaveform() {
       barWidth: 5,
     });
 
-    // Initialize Record plugin
     recordPlugin.current = wavesurfer.current.registerPlugin(
       RecordPlugin.create()
     );
 
-    // Start recording from microphone
     recordPlugin.current.startMic();
-
-    // Update waveform as input is received
-    recordPlugin.current.on("record-progress", (time) => {
-      // You could display recording time here if you want
-      // console.log("Recording time:", time);
-    });
 
     return () => {
       recordPlugin.current.stopMic();
@@ -43,7 +35,7 @@ export default function LiveWaveform() {
 
   return (
     <div className="w-full flex flex-col items-center">
-      <div ref={waveformRef} className="w-full max-w-2xl"></div>
+      <div ref={waveformRef} className="w-full max-w-2xl h-full"></div>
     </div>
   );
 }

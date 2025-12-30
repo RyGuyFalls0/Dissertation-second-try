@@ -6,7 +6,6 @@
 
 using namespace juce;
 using Resource = WebBrowserComponent::Resource;
-using Resource = WebBrowserComponent::Resource;
 
 //==============================================================================
 /*
@@ -54,21 +53,23 @@ private:
     Resource handleStartMicrophone();
     Resource handleStopMicrophone();
     Resource handleGetLevel();
-    Resource handleFileUpload(const String& url);
-    Resource handleGetUploadStatus();
+  /*  Resource handleFileUpload(const String& url);*/
+    //Resource handleGetUploadStatus();
+    Resource getAudioDevices();
+    Resource createEffectsChain(const String& url);
+
+    Resource standardError(const String& message);
+    Resource setAudioDevices(const String& url);
+    var getJsonParameter(const String& url);
+
 
     std::shared_ptr<std::vector<std::unique_ptr<AudioEffects>>> effectChain{ std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>() };
 	double currentSampleRate = 44100;
 
-    // extensible list or queue to track which effect should be applied first
+
+    AudioDeviceManager deviceManager;
 
 
-
-    File uploadedFile; 
-    std::unique_ptr<FileChooser> fileChooser;
     std::atomic<float> currentLevel{ 0.0f };
-
-
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

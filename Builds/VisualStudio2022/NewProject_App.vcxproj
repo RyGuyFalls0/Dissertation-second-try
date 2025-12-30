@@ -146,6 +146,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Effects\Reverb.cpp"/>
     <ClCompile Include="..\..\Source\Effects\Delay.cpp"/>
     <ClCompile Include="..\..\Source\Effects\Chorus.cpp"/>
     <ClCompile Include="..\..\Source\Effects\Distortion.cpp"/>
