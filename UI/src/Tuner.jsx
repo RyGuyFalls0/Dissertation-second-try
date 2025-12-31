@@ -33,7 +33,7 @@ function Tuner({ active }) {
           setNote(`${data.note}${data.octave}`);
           setCents(data.cents);
         }
-      }, 400); // ~2.5 Hz feels responsive but stable
+      }, 400); // polls every 0.4s (2.5Hz)
     }
 
     if (!shouldRun && wasRunning.current) {

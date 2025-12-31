@@ -83,10 +83,19 @@ void PitchDetector::estimatePitch()
         }
     }
 
-    if (tauEstimate == -1)
+    if (tauEstimate == -1) {
+        lastConfidence = 0.0f;
         return;
+    }
 
-	lastPitch = sr / tauEstimate; // frequency in Hz
+	auto rawHz = sr / tauEstimate; // frequency in Hz
     auto confidence = 1.0f - yinBuffer[tauEstimate];
-    lastConfidence = jlimit(0.0f, 1.0f, confidence); //confidence obviously
+    lastConfidence = jlimit(0.0f, 1.0f, confidence); //confidence 
+
+    constexpr float alpha = 0.15f; // arbitrary value -- need justification
+
+    if (lastPitch == 0.0f)
+        lastPitch = rawHz; // initialise
+    else
+        lastPitch = alpha * rawHz + (1.0f - alpha) * lastPitch;
 };

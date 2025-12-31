@@ -105,10 +105,8 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
         float confidence = 0.0f;
         if (pitchDetector.getPitch(detectedHz, confidence))
         {
+            tuner.pitchHz.store(detectedHz);
             tuner.confidence.store(confidence);
-
-			if (confidence > 0.6f) // arbitrary confidence threshold (for now) user testing should help here
-                tuner.pitchHz.store(detectedHz);
         }
     }
     else if (!effectChain->empty())
@@ -357,18 +355,20 @@ Resource MainComponent::getTuning()
 {
     if (tuner.confidence.load() < 0.6f)
     {
-        auto response = R"({"status": "error", "message": "Low confidence in pitch detection"})";
-        return Resource{stringToVector(response), "application/json"};
+        auto response = R"("message": "Low confidence in pitch detection")";
+        DBG(response);
+        return standardError(response);
 	}
 	auto result = analysePitch(tuner.pitchHz.load());
-    String jsonResponse = {
+    String response = {
         "{\"status\": \"success\", \"note\": \"" + result.note +
         "\", \"octave\": " + String(result.octave) +
         ", \"cents\": " + String(result.cents, 1) + "}"
     };
+    DBG(response);
     
 
-    return Resource{ stringToVector(jsonResponse), "application/json" };
+    return Resource{ stringToVector(response), "application/json" };
 }
 
 auto MainComponent::getResource(const String &url) -> Resource
