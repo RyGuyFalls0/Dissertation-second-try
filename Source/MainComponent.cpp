@@ -324,6 +324,22 @@ Resource MainComponent::createEffectsChain(const String& url) {
     return Resource{ stringToVector(response), "application/json" };
 }
 
+Resource MainComponent::handleStartTuner()
+{
+    tunerEnabled.store(true);
+    pitchDetector.reset();
+    auto response = R"({"status": "success", "message": "Tuner started"})";
+    return Resource{stringToVector(response), "application/json"};
+}
+
+Resource MainComponent::handleStopTuner()
+{
+    tunerEnabled.store(false);
+    pitchDetector.reset();
+    auto response = R"({"status": "success", "message": "Tuner halted"})";
+    return Resource{ stringToVector(response), "application/json" };
+}
+
 auto MainComponent::getResource(const String &url) -> Resource
 {
     if (url.startsWith("/api/"))
@@ -332,15 +348,17 @@ auto MainComponent::getResource(const String &url) -> Resource
         // handleEffects(url);
         // Adding delay effect, adding distortion, adding reverb, and adding
         if (url.startsWith("/api/effects"))
-        {
             return createEffectsChain(url);
-        }
-        else if (url.startsWith("/api/audioList")) {
+
+        else if (url.startsWith("/api/audioList"))
             return getAudioDevices();
-        }
-        else if (url.startsWith("/api/setAudioIO")) {
+        else if (url.startsWith("/api/setAudioIO"))
             return setAudioDevices(url);
-        }
+
+        else if (url.startsWith("/api/startTuner"))
+            return handleStartTuner();
+        else if (url.startsWith("/api/stopTuner"))
+            return handleStopTuner();
     }
 
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()

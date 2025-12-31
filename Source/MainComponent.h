@@ -70,6 +70,9 @@ private:
     Resource getAudioDevices();
     Resource createEffectsChain(const String& url);
 
+    Resource handleStartTuner();
+	Resource handleStopTuner();
+
     Resource standardError(const String& message);
     Resource setAudioDevices(const String& url);
     var getJsonParameter(const String& url);
