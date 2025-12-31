@@ -9,18 +9,18 @@ public:
     void prepare(double sampleRate, int maxBlockSize);
     void process(const float* input, int numSamples);
     void reset();
-    bool getPitch(float& detectedHz);
+    bool getPitch(float& detectedHz, float& confidence);
 
 private:
     // good practise (for tha diss)
     void pushSample(float s);
     float calculateDifference(int tau);
-    float estimatePitch();
+    void estimatePitch();
 
 private:
     float sr = 44100.0;
     static const int bufferSize = 4096;
-    static const int hopSize = 512;
+    static const int hopSize = 1024;
 
     float ringBuffer[bufferSize]{};
     int writeIndex = 0;
@@ -30,5 +30,6 @@ private:
     const float threshold = 0.15f; // Starting with 0.15 (likely between 0.10 and 0.15)
 
     float lastPitch = 0.0f;
+    float lastConfidence = 0.0f;
     std::atomic<bool> ready{ false };
 };

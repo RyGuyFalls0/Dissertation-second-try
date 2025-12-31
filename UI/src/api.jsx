@@ -19,7 +19,7 @@ export const sendEffectsData = async (activeEffectsMetadata) => {
 
 export const getAudioList = async () => {
   try {
-    const response = await fetch(`/api/audioList`, {
+    const response = await fetch(`/api/getAudioList`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json"

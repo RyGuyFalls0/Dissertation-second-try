@@ -43,7 +43,7 @@ private:
     struct Tuner
     {
         std::atomic<float> pitchHz{ 0.0f };
-        std::atomic<float> confidence{ 0.0f }; // may remove later
+        std::atomic<float> confidence{ 0.0f }; // in case I have time later and want to improve tuner
     };
 
 	PitchDetector pitchDetector;

@@ -1,6 +1,5 @@
 #include "PitchDetector.h"
 
-
 void PitchDetector::prepare(double sampleRate, int maxBlockSize)
 {
     sr = sampleRate;
@@ -17,17 +16,19 @@ void PitchDetector::reset()
     writeIndex = 0;
     samplesCollected = 0;
     lastPitch = 0.0f;
+    lastConfidence = 0.0f;
     ready.store(false);
 
     std::fill(std::begin(ringBuffer), std::end(ringBuffer), 0.0f);
 }
 
-bool PitchDetector::getPitch(float& detectedHz)
+bool PitchDetector::getPitch(float& detectedHz, float& confidence)
 {
     if (!ready)
         return false;
 
     detectedHz = lastPitch;
+    confidence = lastConfidence;
     ready.store(false);
     return true;
 }
@@ -56,7 +57,7 @@ float PitchDetector::calculateDifference(int tau)
     return sum;
 }
 
-float PitchDetector::estimatePitch() 
+void PitchDetector::estimatePitch() 
 { 
     yinBuffer[0] = 1.0f;
     float runningSum = 0.0f;
@@ -83,7 +84,9 @@ float PitchDetector::estimatePitch()
     }
 
     if (tauEstimate == -1)
-        return 0.0f;
+        return;
 
-	return sr / tauEstimate;
+	lastPitch = sr / tauEstimate; // frequency in Hz
+    auto confidence = 1.0f - yinBuffer[tauEstimate];
+    lastConfidence = jlimit(0.0f, 1.0f, confidence); //confidence obviously
 };

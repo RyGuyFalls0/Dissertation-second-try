@@ -83,11 +83,8 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
 {
     currentLevel.store(0.0f);
 
-    if (tunerEnabled.load())
-    {
-        pitchDetector.prepare(samplesPerBlockExpected, sampleRate);
-	}
-    else if (effectChain != nullptr)
+    pitchDetector.prepare(sampleRate, samplesPerBlockExpected);
+    if (effectChain != nullptr)
     {
         for (auto& effect : *effectChain)
         {
@@ -104,13 +101,17 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
         const float* input = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
         pitchDetector.process(input, bufferToFill.numSamples);
 
-        float detectedHz;
-        if (pitchDetector.getPitch(detectedHz))
+        float detectedHz = 0.0f;
+        float confidence = 0.0f;
+        if (pitchDetector.getPitch(detectedHz, confidence))
         {
-            tuner.pitchHz.store(detectedHz);
+            tuner.confidence.store(confidence);
+
+			if (confidence > 0.6f) // arbitrary confidence threshold (for now) user testing should help here
+                tuner.pitchHz.store(detectedHz);
         }
     }
-    if (!effectChain->empty())
+    else if (!effectChain->empty())
     {
         auto *leftChannel = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
         auto *rightChannel = bufferToFill.buffer->getNumChannels() > 1
@@ -215,7 +216,6 @@ Resource MainComponent::getAudioDevices() {
     };
 }
 
-
 var MainComponent::getJsonParameter(const String& url)
 {
     URL parsedUrl(url);
@@ -232,7 +232,6 @@ var MainComponent::getJsonParameter(const String& url)
 
     return result;
 }
-
 
 Resource MainComponent::setAudioDevices(const String& url) {
     auto json = getJsonParameter(url);
@@ -350,7 +349,7 @@ auto MainComponent::getResource(const String &url) -> Resource
         if (url.startsWith("/api/effects"))
             return createEffectsChain(url);
 
-        else if (url.startsWith("/api/audioList"))
+        else if (url.startsWith("/api/getAudioList"))
             return getAudioDevices();
         else if (url.startsWith("/api/setAudioIO"))
             return setAudioDevices(url);
@@ -359,23 +358,24 @@ auto MainComponent::getResource(const String &url) -> Resource
             return handleStartTuner();
         else if (url.startsWith("/api/stopTuner"))
             return handleStopTuner();
+        else if (url.startsWith("/api/stopTuner"))
+            return handleStopTuner();
     }
-
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
         .getChildFile("UI")
         .getChildFile("dist");
 
     const auto resourceToRetrieve = url == "/" ? "index.html"
-                                               : url.fromFirstOccurrenceOf("/", false, false);
+        : url.fromFirstOccurrenceOf("/", false, false);
     const auto resource = resourceFileRoot.getChildFile(resourceToRetrieve);
 
     if (resource.existsAsFile())
     {
         const auto extension = resourceToRetrieve.fromLastOccurrenceOf(".", false, false);
-        return Resource{streamToVector(resource), getMimeForExtension(extension)};
+        return Resource{ streamToVector(resource), getMimeForExtension(extension) };
     }
 
-    return Resource{{}, "text/plain"};
+    return Resource{ {}, "text/plain" };
 }
 
 Resource MainComponent::handleStartMicrophone()
