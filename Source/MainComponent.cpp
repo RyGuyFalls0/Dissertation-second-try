@@ -339,6 +339,38 @@ Resource MainComponent::handleStopTuner()
     return Resource{ stringToVector(response), "application/json" };
 }
 
+TuningResult MainComponent::analysePitch(float hz)
+{
+    static const String notes[] =
+    { "C","C#","D","D#","E","F","F#","G","G#","A","A#","B" };
+
+	float midi = 69.0f + 12.0f * std::log2(hz / 440.0f); // standard frequency -> MIDI note conversion
+    int nearest = juce::roundToInt(midi);
+
+    float cents = (midi - nearest) * 100.0f;
+    int noteIndex = nearest % 12;
+    int octave = nearest / 12 - 1;
+    return { notes[noteIndex], octave, cents };
+}
+
+Resource MainComponent::getTuning()
+{
+    if (tuner.confidence.load() < 0.6f)
+    {
+        auto response = R"({"status": "error", "message": "Low confidence in pitch detection"})";
+        return Resource{stringToVector(response), "application/json"};
+	}
+	auto result = analysePitch(tuner.pitchHz.load());
+    String jsonResponse = String::formatted(
+        R"({"status": "success", "note": "%s", "octave": %d, "cents": %.1f})",
+        result.note.toRawUTF8(),
+        result.octave,
+        result.cents
+    );
+
+    return Resource{ stringToVector(jsonResponse), "application/json" };
+}
+
 auto MainComponent::getResource(const String &url) -> Resource
 {
     if (url.startsWith("/api/"))
@@ -358,8 +390,8 @@ auto MainComponent::getResource(const String &url) -> Resource
             return handleStartTuner();
         else if (url.startsWith("/api/stopTuner"))
             return handleStopTuner();
-        else if (url.startsWith("/api/stopTuner"))
-            return handleStopTuner();
+        else if (url.startsWith("/api/getTuning"))
+            return getTuning();
     }
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
         .getChildFile("UI")

@@ -13,6 +13,14 @@ using Resource = WebBrowserComponent::Resource;
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
+
+struct TuningResult // moved for issues with forward declaration
+{
+    String note;
+    int octave;
+    float cents;
+};
+
 class MainComponent  : public AudioAppComponent
 {
 public:
@@ -43,11 +51,12 @@ private:
     struct Tuner
     {
         std::atomic<float> pitchHz{ 0.0f };
-        std::atomic<float> confidence{ 0.0f }; // in case I have time later and want to improve tuner
+        std::atomic<float> confidence{ 0.0f }; 
     };
 
 	PitchDetector pitchDetector;
 	Tuner tuner;
+	TuningResult currentTuning;
     std::atomic<bool> tunerEnabled { false };
 
     enum TransportState
@@ -72,6 +81,8 @@ private:
 
     Resource handleStartTuner();
 	Resource handleStopTuner();
+    Resource getTuning();
+	TuningResult analysePitch(float hz);
 
     Resource standardError(const String& message);
     Resource setAudioDevices(const String& url);
