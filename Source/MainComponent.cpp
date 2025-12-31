@@ -361,12 +361,12 @@ Resource MainComponent::getTuning()
         return Resource{stringToVector(response), "application/json"};
 	}
 	auto result = analysePitch(tuner.pitchHz.load());
-    String jsonResponse = String::formatted(
-        R"({"status": "success", "note": "%s", "octave": %d, "cents": %.1f})",
-        result.note.toRawUTF8(),
-        result.octave,
-        result.cents
-    );
+    String jsonResponse = {
+        "{\"status\": \"success\", \"note\": \"" + result.note +
+        "\", \"octave\": " + String(result.octave) +
+        ", \"cents\": " + String(result.cents, 1) + "}"
+    };
+    
 
     return Resource{ stringToVector(jsonResponse), "application/json" };
 }

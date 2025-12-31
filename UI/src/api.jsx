@@ -95,3 +95,22 @@ export const startTuner = async () => {
     console.log(err);
   }
 }
+
+export const getTuning = async () => {
+  try {
+  const response = await fetch(`/api/getTuning`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+    const data = await response.json();
+
+    if (data.status === 'success') {
+      console.log(data)
+      return data
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}

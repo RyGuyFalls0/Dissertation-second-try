@@ -56,7 +56,6 @@ private:
 
 	PitchDetector pitchDetector;
 	Tuner tuner;
-	TuningResult currentTuning;
     std::atomic<bool> tunerEnabled { false };
 
     enum TransportState
