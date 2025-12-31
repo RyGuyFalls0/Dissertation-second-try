@@ -59,3 +59,39 @@ export const setAudioIO = async (ioConfig) => {
     throw err;
   }
 };
+
+export const stopTuner = async () => {
+  try {
+  const response = await fetch(`/api/stopTuner`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+    const data = await response.json();
+
+    if (data.status === 'success') {
+      return data
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const startTuner = async () => {
+  try {
+  const response = await fetch(`/api/startTuner`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+    const data = await response.json();
+
+    if (data.status === 'success') {
+      return data
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}

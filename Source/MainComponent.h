@@ -39,12 +39,19 @@ private:
         DynamicObject::Ptr specifics;
     };
 
+    struct Tuner
+    {
+        std::atomic<float> pitchHz{ 0.0f };
+        std::atomic<float> confidence{ 0.0f }; // may remove later
+    };
+
     enum TransportState
     {
         Stopped,
         Recording
     };
     TransportState transportState;
+
 
     WebBrowserComponent webView;
     Resource getResource(const String& url);
