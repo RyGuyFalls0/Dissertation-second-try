@@ -146,14 +146,15 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\Effects\Reverb.cpp"/>
     <ClCompile Include="..\..\Source\Effects\Delay.cpp"/>
     <ClCompile Include="..\..\Source\Effects\Chorus.cpp"/>
     <ClCompile Include="..\..\Source\Effects\Distortion.cpp"/>
     <ClCompile Include="..\..\Source\Effects\Factory\EffectFactory.cpp"/>
     <ClCompile Include="..\..\Source\Effects\Factory\EffectType.cpp"/>
     <ClCompile Include="..\..\Source\Effects\EffectType.cpp"/>
+    <ClCompile Include="..\..\Source\Effects\Reverb.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
+    <ClCompile Include="..\..\Source\PitchDetector.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\Effects\Distortion.cpp"/>
     <ClCompile Include="..\..\..\..\..\..\..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
@@ -2965,6 +2966,7 @@
     <ClInclude Include="..\..\Source\Effects\Delay.h"/>
     <ClInclude Include="..\..\Source\Effects\Reverb.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
+    <ClInclude Include="..\..\Source\PitchDetector.h"/>
     <ClInclude Include="..\..\Source\Effects\Reverb.h"/>
     <ClInclude Include="..\..\..\..\..\..\..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="..\..\..\..\..\..\..\..\..\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>

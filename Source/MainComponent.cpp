@@ -83,15 +83,33 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
 {
     currentLevel.store(0.0f);
 
-    // Prepare all effects in the chain
-    for (auto &effect : *effectChain)
+    if (tunerEnabled.load())
     {
-        effect->prepare(sampleRate, samplesPerBlockExpected);
+        pitchDetector.prepare(samplesPerBlockExpected, sampleRate);
+	}
+    else if (effectChain != nullptr)
+    {
+        for (auto& effect : *effectChain)
+        {
+            effect->prepare(sampleRate, samplesPerBlockExpected);
+        }
     }
 }
 
 void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill)
 {
+
+    if (tunerEnabled.load())
+    {
+        const float* input = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+        pitchDetector.process(input, bufferToFill.numSamples);
+
+        float detectedHz;
+        if (pitchDetector.getPitch(detectedHz))
+        {
+            tuner.pitchHz.store(detectedHz);
+        }
+    }
     if (!effectChain->empty())
     {
         auto *leftChannel = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);

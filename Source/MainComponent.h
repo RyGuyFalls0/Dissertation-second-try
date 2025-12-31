@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "Effects/AudioEffects.h"
 #include "./Effects/Factory/EffectsFactory.h"
+#include "PitchDetector.h"
 
 using namespace juce;
 using Resource = WebBrowserComponent::Resource;
@@ -44,6 +45,10 @@ private:
         std::atomic<float> pitchHz{ 0.0f };
         std::atomic<float> confidence{ 0.0f }; // may remove later
     };
+
+	PitchDetector pitchDetector;
+	Tuner tuner;
+    std::atomic<bool> tunerEnabled { false };
 
     enum TransportState
     {

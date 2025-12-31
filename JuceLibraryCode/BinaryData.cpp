@@ -11,20 +11,20 @@ namespace BinaryData
 
 //================== index.html ==================
 static const unsigned char temp_binary_data_0[] =
-"<!doctype html>\n"
-"<html lang=\"en\">\n"
-"  <head>\n"
-"    <meta charset=\"UTF-8\" />\n"
-"    <link rel=\"icon\" type=\"image/svg+xml\" href=\"/vite.svg\" />\n"
-"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n"
-"    <title>ui</title>\n"
-"    <script type=\"module\" crossorigin src=\"/assets/index-BWeKYKQT.js\"></script>\n"
-"    <link rel=\"stylesheet\" crossorigin href=\"/assets/index-BfdUJI_d.css\">\n"
-"  </head>\n"
-"  <body>\n"
-"    <div id=\"root\"></div>\n"
-"  </body>\n"
-"</html>\n";
+"<!doctype html>\r\n"
+"<html lang=\"en\">\r\n"
+"  <head>\r\n"
+"    <meta charset=\"UTF-8\" />\r\n"
+"    <link rel=\"icon\" type=\"image/svg+xml\" href=\"/vite.svg\" />\r\n"
+"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\r\n"
+"    <title>ui</title>\r\n"
+"    <script type=\"module\" crossorigin src=\"/assets/index-CALi0Oak.js\"></script>\n"
+"    <link rel=\"stylesheet\" crossorigin href=\"/assets/index-CyesxLtm.css\">\n"
+"  </head>\r\n"
+"  <body>\r\n"
+"    <div id=\"root\"></div>\r\r\n"
+"  </body>\r\n"
+"</html>\r\n";
 
 const char* index_html = (const char*) temp_binary_data_0;
 
@@ -40,7 +40,7 @@ const char* getNamedResource (const char* resourceNameUTF8, int& numBytes)
 
     switch (hash)
     {
-        case 0x2c834af8:  numBytes = 449; return index_html;
+        case 0x2c834af8:  numBytes = 462; return index_html;
         default: break;
     }
 

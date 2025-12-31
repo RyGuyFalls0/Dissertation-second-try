@@ -3,7 +3,6 @@
 <JUCERPROJECT id="Lpmh4A" name="NewProject" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="RmHln0" name="NewProject">
-    <FILE id="v6brTm" name="Reverb.cpp" compile="1" resource="0" file="Source/Effects/Reverb.cpp"/>
     <GROUP id="{00003417-5ED4-17B1-DB34-E70CE66C050A}" name="assets"/>
     <GROUP id="{D63B9817-EC30-F277-3945-87B972CFD21A}" name="Source">
       <GROUP id="{E2D865AD-733F-414B-1BCF-B48DB4C19AF2}" name="Effects">
@@ -20,12 +19,16 @@
         <FILE id="ySYhgt" name="EffectType.h" compile="0" resource="0" file="Source/Effects/Factory/EffectType.h"/>
         <FILE id="buEMAq" name="Distortion.h" compile="0" resource="0" file="Source/Effects/Distortion.h"/>
         <FILE id="JiNDBI" name="EffectType.cpp" compile="1" resource="0" file="Source/Effects/EffectType.cpp"/>
+        <FILE id="v6brTm" name="Reverb.cpp" compile="1" resource="0" file="Source/Effects/Reverb.cpp"/>
         <FILE id="Jw62rc" name="EffectType.h" compile="0" resource="0" file="Source/Effects/EffectType.h"/>
         <FILE id="ELAMkn" name="Delay.h" compile="0" resource="0" file="Source/Effects/Delay.h"/>
         <FILE id="Vvfaty" name="Reverb.h" compile="0" resource="0" file="Source/Effects/Reverb.h"/>
       </GROUP>
       <FILE id="XzGop3" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="OggIy2" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="ndOSmj" name="PitchDetector.cpp" compile="1" resource="0"
+            file="Source/PitchDetector.cpp"/>
+      <FILE id="gcbGUZ" name="PitchDetector.h" compile="0" resource="0" file="Source/PitchDetector.h"/>
       <FILE id="p6kujg" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
     </GROUP>
