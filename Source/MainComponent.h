@@ -87,6 +87,8 @@ private:
     Resource setAudioDevices(const String& url);
     var getJsonParameter(const String& url);
 
+    Resource getAudioPeaks();
+
 
     std::shared_ptr<std::vector<std::unique_ptr<AudioEffects>>> effectChain{ std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>() };
 	double currentSampleRate = 44100;
@@ -96,5 +98,7 @@ private:
 
 
     std::atomic<float> currentLevel{ 0.0f };
+    std::atomic<float> currentMin{ 0.0f };
+    std::atomic<float> currentMax{ 0.0f };
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

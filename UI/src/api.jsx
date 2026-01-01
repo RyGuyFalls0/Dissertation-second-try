@@ -114,3 +114,21 @@ export const getTuning = async () => {
     console.log(err);
   }
 }
+
+export const getAudioData = async () => {
+  try {
+  const response = await fetch(`/api/getAudioData`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+    const data = await response.json();
+
+    if (data.status === 'success') {
+      return data
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}

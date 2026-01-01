@@ -122,6 +122,21 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
         }
     }
 
+    float blockMin = 1.0f;
+    float blockMax = -1.0f;
+
+    const float* processedAudio = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+
+    for (int i = 0; i < bufferToFill.numSamples; ++i)
+    {
+        float s = processedAudio[i];
+        blockMin = jmin(blockMin, s);
+        blockMax = jmax(blockMax, s);
+    }
+
+    currentMin.store(jmin(currentMin.load(), blockMin));
+    currentMax.store(jmax(currentMax.load(), blockMax));
+
     auto level = bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples);
     currentLevel.store(level);
     //DBG("Buffer RMS before processing: " << bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples));
@@ -365,9 +380,30 @@ Resource MainComponent::getTuning()
         "\", \"octave\": " + String(result.octave) +
         ", \"cents\": " + String(result.cents, 1) + "}"
     };
-    DBG(response);
     
 
+    return Resource{ stringToVector(response), "application/json" };
+}
+
+Resource MainComponent::getAudioPeaks() {
+	DBG("inside getAudioPeaks()");
+    float min = currentMin.exchange(+1.0f, std::memory_order_acq_rel);
+    float max = currentMax.exchange(-1.0f, std::memory_order_acq_rel);
+
+    if (min > max)
+    {
+        min = 0.0f;
+        max = 0.0f;
+    }
+
+    min = juce::jlimit(-1.0f, 1.0f, min);
+    max = juce::jlimit(-1.0f, 1.0f, max);
+
+    String response = {
+        "{\"status\": \"success\", \"min\": " + String(min, 6) +
+        ", \"max\": " + String(max, 6) + "}"
+	};
+	DBG("Audio Peaks Response: " + response);
     return Resource{ stringToVector(response), "application/json" };
 }
 
@@ -392,6 +428,9 @@ auto MainComponent::getResource(const String &url) -> Resource
             return handleStopTuner();
         else if (url.startsWith("/api/getTuning"))
             return getTuning();
+        else if (url.startsWith("/api/getAudioData")) {
+			return getAudioPeaks();
+        }
     }
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
         .getChildFile("UI")
