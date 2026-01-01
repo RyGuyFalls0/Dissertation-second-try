@@ -1,87 +1,107 @@
 import { useEffect, useRef } from "react";
-import WaveSurfer from "wavesurfer.js";
 
 export default function LiveWaveform({ active }) {
-  const waveformRef = useRef(null);
-  const wavesurfer = useRef(null);
+  const canvasRef = useRef(null);
+  const barsRef = useRef([]);
 
-  const peaksRef = useRef([]);
-  const animationRef = useRef(null);
-
-  const MAX_POINTS = 300;
+  const NUM_BARS = 70;
   const FPS = 30;
+  const DECAY = 0.88;      // lower = faster fall
+  const SCALE = 6.0;       // gain for guitar input
 
   useEffect(() => {
-    if (!active || !waveformRef.current) return;
+    if (!active || !canvasRef.current) return;
 
-    wavesurfer.current = WaveSurfer.create({
-      container: waveformRef.current,
-      waveColor: "red",
-      progressColor: "darkred",
-      cursorWidth: 0,
-      interact: false,
-      height: 128, // Explicit height for the waveform
-      normalize: true,
-    });
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
 
-    startPolling();
+    // Init bars
+    barsRef.current = new Array(NUM_BARS).fill(0);
 
-    return () => {
-      stopPolling();
-      wavesurfer.current?.destroy();
-    };
-  }, [active]);
+    let rafId;
+    let timerId;
 
-  function startPolling() {
-    const interval = 100;
+    function resize() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
 
-    animationRef.current = setInterval(async () => {
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    resize();
+    window.addEventListener("resize", resize);
+
+    // ---- FETCH AUDIO LEVEL ----
+    async function pollBackend() {
+      let maxValue = 0;
+
       try {
         const res = await fetch("/api/getAudioData");
         const data = await res.json();
-        
-        let min = -1e-4;
-        let max = 1e-4;
 
         if (data.status === "success") {
-          min = data.min;
-          max = data.max;
+          maxValue = Math.abs(data.max);
         }
-
-        peaksRef.current.push(min, max);
-
-        if (peaksRef.current.length > MAX_POINTS * 2) {
-          peaksRef.current.splice(
-            0,
-            peaksRef.current.length - MAX_POINTS * 2
-          );
-        }
-
-        const duration = peaksRef.current.length / 2 / FPS;
-
-        if (wavesurfer.current) {
-          wavesurfer.current.load(
-            null,
-            [...peaksRef.current],
-            duration
-          );
-        }
-      } catch (e) {
-        console.error(e);
+      } catch {
+        maxValue = 0;
       }
-    }, interval);
-  }
 
-  function stopPolling() {
-    if (animationRef.current) {
-      clearInterval(animationRef.current);
-      animationRef.current = null;
+      // scale + clamp
+      let v = Math.min(maxValue * SCALE, 1);
+
+      // update bars with decay
+      for (let i = 0; i < NUM_BARS; i++) {
+        barsRef.current[i] = Math.max(
+          v,
+          barsRef.current[i] * DECAY
+        );
+      }
     }
-  }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const w = canvas.width;
+      const h = canvas.height;
+      const barWidth = w / NUM_BARS;
+
+      ctx.fillStyle = "red";
+
+      for (let i = 0; i < NUM_BARS; i++) {
+        const value = barsRef.current[i];
+        const barHeight = value * h;
+
+        ctx.fillRect(
+          i * barWidth,
+          (h - barHeight) / 2,
+          barWidth * 0.6,
+          barHeight
+        );
+      }
+
+      rafId = requestAnimationFrame(draw);
+    }
+
+    timerId = setInterval(pollBackend, 1000 / FPS);
+    draw();
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearInterval(timerId);
+      window.removeEventListener("resize", resize);
+    };
+  }, [active]);
 
   return (
-    <div className="w-full flex flex-col items-center">
-      <div ref={waveformRef} className="w-full max-w-2xl" style={{ height: '128px' }}></div>
+    <div className="w-full flex justify-center">
+      <canvas
+        ref={canvasRef}
+        className="w-full max-w-2xl"
+        style={{ height: "128px" }}
+      />
     </div>
   );
 }
