@@ -39,6 +39,49 @@ function App() {
     fetchAudioList();
   }, []);
 
+  useEffect(() => {
+  const handleKey = (e) => {
+    if (e.key === '1') addEffectByKey(0);
+    if (e.key === '2') addEffectByKey(1);
+    if (e.key === '3') addEffectByKey(2);
+    if (e.key === '4') addEffectByKey(3);
+
+    if (e.key.toLowerCase() === 'd') clearActiveEffects();
+  };
+
+  window.addEventListener('keydown', handleKey);
+  return () => window.removeEventListener('keydown', handleKey);
+  }, [activeEffects, activeEffectsMetadata]);
+
+  const addEffectByKey = (index) => {
+  if (activeEffects.length >= 5) return;
+
+  // Get effect from source list
+  const baseEffect = effects[index];
+  if (!baseEffect) return;
+
+  const effect = {
+    ...structuredClone(baseEffect),
+    id: `${baseEffect.name}-${Math.random()}`
+  };
+
+  const updated = [...activeEffects, effect];
+
+  // Rebuild metadata
+  const newMetadata = {};
+  updated.forEach((eff, i) => {
+    newMetadata[eff.id] = {
+      name: eff.name,
+      position: i,
+      specifics: activeEffectsMetadata[eff.id]?.specifics || {}
+    };
+  });
+
+  setActiveEffects(updated);
+  setActiveEffectsMetadata(newMetadata);
+};
+
+
   const fetchAudioList = async () => {
     try {
       console.log("trying to get audio list in App.jsx");
@@ -102,6 +145,11 @@ function App() {
     } catch (error) {
       console.error("Failed to change output device:", error);
     }
+    };
+
+    const clearActiveEffects = () => {
+      setActiveEffects([]);
+      setActiveEffectsMetadata({});
     };
 
   const handleDragDrop = (results) => {

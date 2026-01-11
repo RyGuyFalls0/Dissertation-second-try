@@ -4,10 +4,10 @@ export default function LiveWaveform({ active }) {
   const canvasRef = useRef(null);
   const barsRef = useRef([]);
 
-  const NUM_BARS = 70;
+  const NUM_BARS = 400;
   const FPS = 30;
   const DECAY = 0.88;      // lower = faster fall
-  const SCALE = 6.0;       // gain for guitar input
+  const SCALE = 3.0;       // gain for guitar input
 
   useEffect(() => {
     if (!active || !canvasRef.current) return;
