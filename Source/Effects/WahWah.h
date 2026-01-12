@@ -3,15 +3,19 @@
 #include <JuceHeader.h>
 using namespace juce;
 
-class Chorus : public AudioEffects
+class WahWah : public AudioEffects
 {
 public:
-    Chorus(float rate, float depth, float mix, float phase);
-    ~Chorus() noexcept override = default;
+    WahWah(float rate, float depth, float mix, float phase);
+    ~WahWah() noexcept override = default;
 
     void prepare(double sampleRate, int samplesPerBlock) override;
     void process(float* leftChannel, float* rightChannel, int numSamples) override;
     String getName() const override;
+
+    void setRate(float rateHz) { rate = jlimit(0.05f, 5.0f, rateHz);; }
+    void setDepth(float depthAmount) { depth = jlimit(0.0f, 1.0f, depthAmount); }
+    void setMix(float mixAmount) { mix = jlimit(0.0f, 1.0f, mixAmount); }
 
 private:
     dsp::DelayLine<float, dsp::DelayLineInterpolationTypes::Linear> delayLineLeft;

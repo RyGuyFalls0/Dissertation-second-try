@@ -318,7 +318,7 @@ Resource MainComponent::createEffectsChain(const String& url) {
         { return a.first < b.first; });
 
     auto newChain = std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>();
-    newChain->reserve(5); // assuming a max of 5 effects for now
+    newChain->reserve(5); // max of 5 effects for now
     for (const auto& [pos, effectInfo] : sortedEffects)
     {
         std::unique_ptr<AudioEffects> effect;
