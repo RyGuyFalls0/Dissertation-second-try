@@ -240,8 +240,8 @@ return (
       <DragDropContext onDragEnd={handleDragDrop}>
         <div className="grid grid-cols-2 gap-12 w-full max-w-3xl">
           {/* LEFT COLUMN */}
-          <div className="flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 flex-1 min-h-[250px]">
-            <div className="bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
+          <div className="flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 min-h-[250px]">
+            <div className="h-full bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
               <div className="card">
                 <div className="header">
                   <h3 className="text-lg font-semibold mb-4 center">Oyster</h3>
@@ -285,8 +285,8 @@ return (
           </div>
 
           {/* RIGHT COLUMN */}
-          <div className="flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 flex-1 min-h-[250px]">
-            <div className="bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
+          <div className="flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 min-h-[250px]">
+            <div className=" h-full bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
               <div className="card">
                 <div className="header">
                   <h3 className="text-lg font-semibold mb-4">
@@ -303,7 +303,7 @@ return (
                     <div
                       {...provided.droppableProps}
                       ref={provided.innerRef}
-                      className={`p-4 rounded-xl min-h-[200px] transition-colors duration-200 ${
+                      className={`flex flex-col gap-2 p-4 rounded-xl min-h-[200px] transition-colors duration-200 ${
                         snapshot.isDraggingOver
                           ? 'bg-blue-100'
                           : 'bg-gray-50'
