@@ -83,16 +83,33 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
 {
     currentLevel.store(0.0f);
 
-    // Prepare all effects in the chain
-    for (auto &effect : *effectChain)
+    pitchDetector.prepare(sampleRate, samplesPerBlockExpected);
+    if (effectChain != nullptr)
     {
-        effect->prepare(sampleRate, samplesPerBlockExpected);
+        for (auto& effect : *effectChain)
+        {
+            effect->prepare(sampleRate, samplesPerBlockExpected);
+        }
     }
 }
 
 void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill)
 {
-    if (!effectChain->empty())
+
+    if (tunerEnabled.load())
+    {
+        const float* input = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+        pitchDetector.process(input, bufferToFill.numSamples);
+
+        float detectedHz = 0.0f;
+        float confidence = 0.0f;
+        if (pitchDetector.getPitch(detectedHz, confidence))
+        {
+            tuner.pitchHz.store(detectedHz);
+            tuner.confidence.store(confidence);
+        }
+    }
+    else if (!effectChain->empty())
     {
         auto *leftChannel = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
         auto *rightChannel = bufferToFill.buffer->getNumChannels() > 1
@@ -105,6 +122,21 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
         }
     }
 
+    float blockMin = 1.0f;
+    float blockMax = -1.0f;
+
+    const float* processedAudio = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+
+    for (int i = 0; i < bufferToFill.numSamples; ++i)
+    {
+        float s = processedAudio[i];
+        blockMin = jmin(blockMin, s);
+        blockMax = jmax(blockMax, s);
+    }
+
+    currentMin.store(jmin(currentMin.load(), blockMin));
+    currentMax.store(jmax(currentMax.load(), blockMax));
+
     auto level = bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples);
     currentLevel.store(level);
     //DBG("Buffer RMS before processing: " << bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples));
@@ -112,7 +144,6 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
 
 void MainComponent::releaseResources()
 {
-
 }
 
 //==============================================================================
@@ -198,7 +229,6 @@ Resource MainComponent::getAudioDevices() {
     };
 }
 
-
 var MainComponent::getJsonParameter(const String& url)
 {
     URL parsedUrl(url);
@@ -215,7 +245,6 @@ var MainComponent::getJsonParameter(const String& url)
 
     return result;
 }
-
 
 Resource MainComponent::setAudioDevices(const String& url) {
     auto json = getJsonParameter(url);
@@ -307,6 +336,77 @@ Resource MainComponent::createEffectsChain(const String& url) {
     return Resource{ stringToVector(response), "application/json" };
 }
 
+Resource MainComponent::handleStartTuner()
+{
+    tunerEnabled.store(true);
+    pitchDetector.reset();
+    auto response = R"({"status": "success", "message": "Tuner started"})";
+    return Resource{stringToVector(response), "application/json"};
+}
+
+Resource MainComponent::handleStopTuner()
+{
+    tunerEnabled.store(false);
+    pitchDetector.reset();
+    auto response = R"({"status": "success", "message": "Tuner halted"})";
+    return Resource{ stringToVector(response), "application/json" };
+}
+
+TuningResult MainComponent::analysePitch(float hz)
+{
+    static const String notes[] =
+    { "C","C#","D","D#","E","F","F#","G","G#","A","A#","B" };
+
+	float midi = 69.0f + 12.0f * std::log2(hz / 440.0f); // standard frequency -> MIDI note conversion
+    int nearest = juce::roundToInt(midi);
+
+    float cents = (midi - nearest) * 100.0f;
+    int noteIndex = nearest % 12;
+    int octave = nearest / 12 - 1;
+    return { notes[noteIndex], octave, cents };
+}
+
+Resource MainComponent::getTuning()
+{
+    if (tuner.confidence.load() < 0.6f)
+    {
+        auto response = R"("message": "Low confidence in pitch detection")";
+        DBG(response);
+        return standardError(response);
+	}
+	auto result = analysePitch(tuner.pitchHz.load());
+    String response = {
+        "{\"status\": \"success\", \"note\": \"" + result.note +
+        "\", \"octave\": " + String(result.octave) +
+        ", \"cents\": " + String(result.cents, 1) + "}"
+    };
+    
+
+    return Resource{ stringToVector(response), "application/json" };
+}
+
+Resource MainComponent::getAudioPeaks() {
+	DBG("inside getAudioPeaks()");
+    float min = currentMin.exchange(+1.0f, std::memory_order_acq_rel);
+    float max = currentMax.exchange(-1.0f, std::memory_order_acq_rel);
+
+    if (min > max)
+    {
+        min = 0.0f;
+        max = 0.0f;
+    }
+
+    min = juce::jlimit(-1.0f, 1.0f, min);
+    max = juce::jlimit(-1.0f, 1.0f, max);
+
+    String response = {
+        "{\"status\": \"success\", \"min\": " + String(min, 6) +
+        ", \"max\": " + String(max, 6) + "}"
+	};
+	DBG("Audio Peaks Response: " + response);
+    return Resource{ stringToVector(response), "application/json" };
+}
+
 auto MainComponent::getResource(const String &url) -> Resource
 {
     if (url.startsWith("/api/"))
@@ -315,32 +415,38 @@ auto MainComponent::getResource(const String &url) -> Resource
         // handleEffects(url);
         // Adding delay effect, adding distortion, adding reverb, and adding
         if (url.startsWith("/api/effects"))
-        {
             return createEffectsChain(url);
-        }
-        else if (url.startsWith("/api/audioList")) {
+
+        else if (url.startsWith("/api/getAudioList"))
             return getAudioDevices();
-        }
-        else if (url.startsWith("/api/setAudioIO")) {
+        else if (url.startsWith("/api/setAudioIO"))
             return setAudioDevices(url);
+
+        else if (url.startsWith("/api/startTuner"))
+            return handleStartTuner();
+        else if (url.startsWith("/api/stopTuner"))
+            return handleStopTuner();
+        else if (url.startsWith("/api/getTuning"))
+            return getTuning();
+        else if (url.startsWith("/api/getAudioData")) {
+			return getAudioPeaks();
         }
     }
-
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
         .getChildFile("UI")
         .getChildFile("dist");
 
     const auto resourceToRetrieve = url == "/" ? "index.html"
-                                               : url.fromFirstOccurrenceOf("/", false, false);
+        : url.fromFirstOccurrenceOf("/", false, false);
     const auto resource = resourceFileRoot.getChildFile(resourceToRetrieve);
 
     if (resource.existsAsFile())
     {
         const auto extension = resourceToRetrieve.fromLastOccurrenceOf(".", false, false);
-        return Resource{streamToVector(resource), getMimeForExtension(extension)};
+        return Resource{ streamToVector(resource), getMimeForExtension(extension) };
     }
 
-    return Resource{{}, "text/plain"};
+    return Resource{ {}, "text/plain" };
 }
 
 Resource MainComponent::handleStartMicrophone()

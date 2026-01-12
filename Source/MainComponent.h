@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "Effects/AudioEffects.h"
 #include "./Effects/Factory/EffectsFactory.h"
+#include "PitchDetector.h"
 
 using namespace juce;
 using Resource = WebBrowserComponent::Resource;
@@ -12,6 +13,14 @@ using Resource = WebBrowserComponent::Resource;
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
+
+struct TuningResult // moved for issues with forward declaration
+{
+    String note;
+    int octave;
+    float cents;
+};
+
 class MainComponent  : public AudioAppComponent
 {
 public:
@@ -39,12 +48,23 @@ private:
         DynamicObject::Ptr specifics;
     };
 
+    struct Tuner
+    {
+        std::atomic<float> pitchHz{ 0.0f };
+        std::atomic<float> confidence{ 0.0f }; 
+    };
+
+	PitchDetector pitchDetector;
+	Tuner tuner;
+    std::atomic<bool> tunerEnabled { false };
+
     enum TransportState
     {
         Stopped,
         Recording
     };
     TransportState transportState;
+
 
     WebBrowserComponent webView;
     Resource getResource(const String& url);
@@ -58,9 +78,16 @@ private:
     Resource getAudioDevices();
     Resource createEffectsChain(const String& url);
 
+    Resource handleStartTuner();
+	Resource handleStopTuner();
+    Resource getTuning();
+	TuningResult analysePitch(float hz);
+
     Resource standardError(const String& message);
     Resource setAudioDevices(const String& url);
     var getJsonParameter(const String& url);
+
+    Resource getAudioPeaks();
 
 
     std::shared_ptr<std::vector<std::unique_ptr<AudioEffects>>> effectChain{ std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>() };
@@ -71,5 +98,7 @@ private:
 
 
     std::atomic<float> currentLevel{ 0.0f };
+    std::atomic<float> currentMin{ 0.0f };
+    std::atomic<float> currentMax{ 0.0f };
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

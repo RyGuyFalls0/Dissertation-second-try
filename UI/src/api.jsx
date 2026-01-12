@@ -19,7 +19,7 @@ export const sendEffectsData = async (activeEffectsMetadata) => {
 
 export const getAudioList = async () => {
   try {
-    const response = await fetch(`/api/audioList`, {
+    const response = await fetch(`/api/getAudioList`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json"
@@ -59,3 +59,76 @@ export const setAudioIO = async (ioConfig) => {
     throw err;
   }
 };
+
+export const stopTuner = async () => {
+  try {
+  const response = await fetch(`/api/stopTuner`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+    const data = await response.json();
+
+    if (data.status === 'success') {
+      return data
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const startTuner = async () => {
+  try {
+  const response = await fetch(`/api/startTuner`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+    const data = await response.json();
+
+    if (data.status === 'success') {
+      return data
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const getTuning = async () => {
+  try {
+  const response = await fetch(`/api/getTuning`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+    const data = await response.json();
+
+    if (data.status === 'success') {
+      console.log(data)
+      return data
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export const getAudioData = async () => {
+  try {
+  const response = await fetch(`/api/getAudioData`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+    const data = await response.json();
+
+    if (data.status === 'success') {
+      return data
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}

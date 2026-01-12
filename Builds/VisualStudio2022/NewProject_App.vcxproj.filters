@@ -679,9 +679,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\Effects\Reverb.cpp">
-      <Filter>NewProject</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Effects\Delay.cpp">
       <Filter>NewProject\Source\Effects</Filter>
     </ClCompile>
@@ -700,7 +697,13 @@
     <ClCompile Include="..\..\Source\Effects\EffectType.cpp">
       <Filter>NewProject\Source\Effects</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Effects\Reverb.cpp">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
+      <Filter>NewProject\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PitchDetector.cpp">
       <Filter>NewProject\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MainComponent.cpp">
@@ -3709,6 +3712,9 @@
       <Filter>NewProject\Source\Effects</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
+      <Filter>NewProject\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PitchDetector.h">
       <Filter>NewProject\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Effects\Reverb.h">
