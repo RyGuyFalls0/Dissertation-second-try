@@ -226,22 +226,22 @@ return (
       </a>
     </header>
 
-    <div>
+    <div className="mt-10 w-full ">
       <Carousel />
     </div>
 
     <main className="flex-1 flex flex-col items-center justify-center p-6">
       <h2 className="text-3xl font-bold mb-8">Effects</h2>
 
-      <div className="grid grid-cols-2 gap-12 w-full max-w-3xl">
-        <DragDropContext onDragEnd={handleDragDrop}>
-
+      {/* DRAG DROP AREA */}
+      <DragDropContext onDragEnd={handleDragDrop}>
+        <div className="grid grid-cols-2 gap-12 w-full max-w-3xl">
           {/* LEFT COLUMN */}
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 flex-1 min-h-[250px]">
             <div className="bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
               <div className="card">
                 <div className="header">
-                  <h3 className="text-lg font-semibold mb-4">Oyster</h3>
+                  <h3 className="text-lg font-semibold mb-4 center">Oyster</h3>
                 </div>
 
                 <Droppable droppableId="oyster" type="effects">
@@ -279,66 +279,10 @@ return (
                 </Droppable>
               </div>
             </div>
-
-            {/* INPUT DEVICE */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Input Device
-              </label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
-                onChange={handleInputDeviceChange}
-                value={audioList?.currentInput || ''}
-              >
-                {audioList?.status === 'success' ? (
-                  <>
-                    <option value={audioList.currentInput}>
-                      {audioList.currentInput} (Current)
-                    </option>
-                    {audioList.inputDevices
-                      ?.filter(d => d !== audioList.currentInput)
-                      .map((device, index) => (
-                        <option key={index} value={device}>
-                          {device}
-                        </option>
-                      ))}
-                  </>
-                ) : (
-                  <option>Loading devices...</option>
-                )}
-              </select>
-            </div>
-
-            {/* RELOAD BUTTON */}
-            <div className="flex justify-center my-4">
-              <button
-                onClick={handleRefreshDevices}
-                disabled={isRefreshing}
-                className={`bg-white border-2 border-gray-300 rounded-full p-3 shadow-lg
-                  hover:bg-gray-50 hover:border-gray-400 transition-all
-                  ${isRefreshing ? 'animate-spin' : ''}
-                `}
-                title="Refresh audio devices"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-                </svg>
-              </button>
-            </div>
           </div>
 
           {/* RIGHT COLUMN */}
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 flex-1 min-h-[250px]">
             <div className="bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
               <div className="card">
                 <div className="header">
@@ -393,42 +337,101 @@ return (
                 </Droppable>
               </div>
             </div>
-
-            {/* OUTPUT DEVICE */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Output Device
-              </label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
-                onChange={handleOutputDeviceChange}
-                value={audioList?.currentOutput || ''}
-              >
-                {audioList?.status === 'success' ? (
-                  <>
-                    <option value={audioList.currentOutput}>
-                      {audioList.currentOutput} (Current)
-                    </option>
-                    {audioList.outputDevices
-                      ?.filter(d => d !== audioList.currentOutput)
-                      .map((device, index) => (
-                        <option key={index} value={device}>
-                          {device}
-                        </option>
-                      ))}
-                  </>
-                ) : (
-                  <option>Loading devices...</option>
-                )}
-              </select>
-            </div>
           </div>
 
-        </DragDropContext>
+        </div>
+      </DragDropContext>
+
+      <div className="grid grid-cols-3 gap-6 w-full max-w-3xl mt-8">
+
+        {/* INPUT */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Input Device
+          </label>
+          <select
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
+            onChange={handleInputDeviceChange}
+            value={audioList?.currentInput || ''}
+          >
+            {audioList?.status === 'success' ? (
+              <>
+                <option value={audioList.currentInput}>
+                  {audioList.currentInput} (Current)
+                </option>
+                {audioList.inputDevices
+                  ?.filter(d => d !== audioList.currentInput)
+                  .map((device, index) => (
+                    <option key={index} value={device}>
+                      {device}
+                    </option>
+                  ))}
+              </>
+            ) : (
+              <option>Loading devices...</option>
+            )}
+          </select>
+        </div>
+
+        {/* RELOAD BUTTON CENTERED */}
+        <div className="flex items-end justify-center">
+          <button
+            onClick={handleRefreshDevices}
+            disabled={isRefreshing}
+            className={`bg-white border-2 border-gray-300 rounded-full p-3 shadow-lg
+              hover:bg-gray-50 hover:border-gray-400 transition-all
+              ${isRefreshing ? 'animate-spin' : ''}
+            `}
+            title="Refresh audio devices"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* OUTPUT */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Output Device
+          </label>
+          <select
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
+            onChange={handleOutputDeviceChange}
+            value={audioList?.currentOutput || ''}
+          >
+            {audioList?.status === 'success' ? (
+              <>
+                <option value={audioList.currentOutput}>
+                  {audioList.currentOutput} (Current)
+                </option>
+                {audioList.outputDevices
+                  ?.filter(d => d !== audioList.currentOutput)
+                  .map((device, index) => (
+                    <option key={index} value={device}>
+                      {device}
+                    </option>
+                  ))}
+              </>
+            ) : (
+              <option>Loading devices...</option>
+            )}
+          </select>
+        </div>
+
       </div>
     </main>
 
-    {/* Add the modal component */}
     <EffectModal
       effect={selectedEffect}
       isOpen={isModalOpen}
@@ -437,5 +440,6 @@ return (
     />
   </div>
 )};
+
 
 export default App;

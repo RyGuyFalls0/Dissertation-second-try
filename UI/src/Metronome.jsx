@@ -54,7 +54,7 @@ function Metronome() {
 
     holdInterval.current = setInterval(() => {
       changeBpm(delta);
-      holdSpeed.current = Math.max(50, holdSpeed.current - 15);
+      holdSpeed.current = Math.max(50, holdSpeed.current - 30);
       clearInterval(holdInterval.current);
       holdInterval.current = setInterval(
         () => changeBpm(delta),

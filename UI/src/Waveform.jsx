@@ -46,7 +46,7 @@ export default function LiveWaveform({ active }) {
           maxValue = Math.abs(data.max);
         }
       } catch {
-        maxValue = 0;
+        maxValue = 1e-3;
       }
 
       // scale + clamp
