@@ -31,8 +31,6 @@ std::unique_ptr<AudioEffects> EffectsFactory::createEffect(const String& name, D
 
     case EffectType::Chorus:
     {
-        DBG("Chorus is being created");
-
         float rate = 1.7f;
         float depth = 0.8f;
         float mix = 1.0f;
@@ -89,6 +87,28 @@ std::unique_ptr<AudioEffects> EffectsFactory::createEffect(const String& name, D
         effect = std::make_unique<audiofx::Reverb>(roomSize, damping, mix);
         break;
 	}
+
+    case EffectType::WahWah:
+    {
+        float frequency = 800.0f;
+        float resonance = 4.0f;       
+        float mix = 0.7f;             
+
+        if (specs != nullptr)
+        {
+            if (specs->hasProperty("frequency"))
+                frequency = (float)specs->getProperty("frequency");
+
+            if (specs->hasProperty("resonance"))
+                resonance = (float)specs->getProperty("resonance");
+
+            if (specs->hasProperty("wetDryMix"))
+                mix = (float)specs->getProperty("wetDryMix");
+        }
+
+        effect = std::make_unique<WahWah>(frequency, resonance, mix);
+        break;
+    }
 
     default:
         break;

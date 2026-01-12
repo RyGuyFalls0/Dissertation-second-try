@@ -6,24 +6,22 @@ using namespace juce;
 class WahWah : public AudioEffects
 {
 public:
-    WahWah(float rate, float depth, float mix, float phase);
+    WahWah(float frequency, float resonance, float mix);
     ~WahWah() noexcept override = default;
 
     void prepare(double sampleRate, int samplesPerBlock) override;
     void process(float* leftChannel, float* rightChannel, int numSamples) override;
+    updateFilterCoefficients;
     String getName() const override;
 
-    void setRate(float rateHz) { rate = jlimit(0.05f, 5.0f, rateHz);; }
-    void setDepth(float depthAmount) { depth = jlimit(0.0f, 1.0f, depthAmount); }
-    void setMix(float mixAmount) { mix = jlimit(0.0f, 1.0f, mixAmount); }
-
 private:
-    dsp::DelayLine<float, dsp::DelayLineInterpolationTypes::Linear> delayLineLeft;
-    dsp::DelayLine<float, dsp::DelayLineInterpolationTypes::Linear> delayLineRight;
+    float centerFrequency; 
+    float q;               
+    float wetDryMix; 
+    double currentSampleRate = 44100.0;
 
-    float rate;
-    float depth;
-    float mix;
-    float phase;
-    double currentSampleRate;
+    float x1_L = 0.0f, x2_L = 0.0f, y1_L = 0.0f, y2_L = 0.0f;
+    float x1_R = 0.0f, x2_R = 0.0f, y1_R = 0.0f, y2_R = 0.0f;
+
+    float b0, b1, b2, a1, a2;
 };
