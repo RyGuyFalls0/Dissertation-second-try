@@ -20,7 +20,12 @@ const EFFECT_PARAMS = {
     rate: { label: "Rate", min: 0.1, max: 10, step: 0.1, default: 1.5, unit: "Hz" },
     depth: { label: "Depth", min: 0, max: 1, step: 0.01, default: 0.5, unit: "" },
     wetDryMix: { label: "Mix", min: 0, max: 1, step: 0.01, default: 0.5, unit: "" }
-  }
+  },
+  WahWah: {
+    frequency: { label: "Frequency", min: 100, max: 5000, step: 1, default: 800, unit: "Hz" },
+    resonance: { label: "Resonance", min: 0.5, max: 20, step: 0.1, default: 4.0, unit: "Q" },
+    wetDryMix: { label: "Mix", min: 0, max: 1, step: 0.01, default: 0.7, unit: "" }
+  },
 };
 
 function EffectModal({ effect, isOpen, onClose, onSave }) {
