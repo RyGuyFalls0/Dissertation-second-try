@@ -679,6 +679,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Effects\WahWah.cpp">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Effects\Delay.cpp">
       <Filter>NewProject\Source\Effects</Filter>
     </ClCompile>
@@ -3687,6 +3690,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Effects\WahWah.h">
+      <Filter>NewProject\Source\Effects</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Effects\AudioEffects.h">
       <Filter>NewProject\Source\Effects</Filter>
     </ClInclude>

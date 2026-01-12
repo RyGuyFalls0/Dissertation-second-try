@@ -6,6 +6,8 @@
     <GROUP id="{00003417-5ED4-17B1-DB34-E70CE66C050A}" name="assets"/>
     <GROUP id="{D63B9817-EC30-F277-3945-87B972CFD21A}" name="Source">
       <GROUP id="{E2D865AD-733F-414B-1BCF-B48DB4C19AF2}" name="Effects">
+        <FILE id="MQp8QZ" name="WahWah.cpp" compile="1" resource="0" file="Source/Effects/WahWah.cpp"/>
+        <FILE id="mgAtwS" name="WahWah.h" compile="0" resource="0" file="Source/Effects/WahWah.h"/>
         <FILE id="RujjXN" name="AudioEffects.h" compile="0" resource="0" file="Source/Effects/AudioEffects.h"/>
         <FILE id="UrAeGk" name="Delay.cpp" compile="1" resource="0" file="Source/Effects/Delay.cpp"/>
         <FILE id="t03iSS" name="Chorus.cpp" compile="1" resource="0" file="Source/Effects/Chorus.cpp"/>

@@ -5,8 +5,20 @@ using namespace juce;
 WahWah::WahWah(float frequency, float resonance, float mix)
     : centerFrequency(jlimit(100.0f, 5000.0f, frequency)),
     q(jlimit(0.5f, 20.0f, resonance)),
-    wetDryMix(jlimit(0.0f, 1.0f, mix)),
+    wetDryMix(jlimit(0.0f, 1.0f, mix))
 {
+    updateFilterCoefficients();
+}
+
+void WahWah::prepare(double sampleRate, int samplesPerBlock)
+{
+    currentSampleRate = sampleRate;
+
+    // Reset filter state (avoids pops/clicks when processing starts)
+    x1_L = x2_L = y1_L = y2_L = 0.0f;
+    x1_R = x2_R = y1_R = y2_R = 0.0f;
+
+    // Recalculate coefficients (in case sampleRate differs)
     updateFilterCoefficients();
 }
 
