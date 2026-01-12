@@ -45,6 +45,7 @@ function App() {
     if (e.key === '2') addEffectByKey(1);
     if (e.key === '3') addEffectByKey(2);
     if (e.key === '4') addEffectByKey(3);
+    if (e.key === '4') addEffectByKey(4);
 
     if (e.key.toLowerCase() === 'd') clearActiveEffects();
   };
