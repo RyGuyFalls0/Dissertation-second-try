@@ -11,7 +11,7 @@ public:
 
     void prepare(double sampleRate, int samplesPerBlock) override;
     void process(float* leftChannel, float* rightChannel, int numSamples) override;
-    updateFilterCoefficients;
+    void updateFilterCoefficients();
     String getName() const override;
 
 private:
