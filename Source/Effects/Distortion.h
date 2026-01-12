@@ -13,9 +13,6 @@ public:
     void process(float* leftChannel, float* rightChannel, int numSamples) override;
     String getName() const override;
 	
-    void setMixAmount(float mix) { mixAmount = jlimit(0.0f,1.0f,mix); }
-	void setGainAmount(float gain) { gainAmount = jlimit(1.0f, 100.0f, gain); }
-
 
 private:
     float hardClip(float sample);

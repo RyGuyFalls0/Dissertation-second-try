@@ -9,6 +9,7 @@ enum class EffectType {
     Reverb,
     Distortion,
     Chorus,
+    WahWah,
 };
 
 EffectType getEffectType(const String& name);

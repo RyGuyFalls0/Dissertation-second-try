@@ -9,7 +9,8 @@ function App() {
     { name: "Reverb", id: 0, specifics: {} },
     { name: "Chorus", id: 1, specifics: {} },
     { name: "Delay", id: 2, specifics: {}  },
-    { name: "Distortion", id: 3, specifics: {} }
+    { name: "Distortion", id: 3, specifics: {} },
+    { name: "WahWah", id: 4, specifics: {} },
   ]
 
   // not currently used, more for reference
@@ -18,6 +19,7 @@ function App() {
     "Chorus": {"rate":1.7, "depth":0.8, "wetDryMix":1.0},
     "Delay": {"delayTime":0.5, "feedback":0.3, "wetDryMix":0.5},
     "Distortion": {"drive":0.5, "wetDryMix":1.0},
+    "WahWah": {"frequency":800.0, "resonance":4.0, "wetDryMix":0.7},
   }
 
   const [effects, setEffects] = useState(effectsList)
