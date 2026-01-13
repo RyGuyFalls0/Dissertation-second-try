@@ -146,6 +146,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Effects\WahWah.cpp"/>
     <ClCompile Include="..\..\Source\Effects\Delay.cpp"/>
     <ClCompile Include="..\..\Source\Effects\Chorus.cpp"/>
     <ClCompile Include="..\..\Source\Effects\Distortion.cpp"/>
@@ -2957,6 +2958,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Effects\WahWah.h"/>
     <ClInclude Include="..\..\Source\Effects\AudioEffects.h"/>
     <ClInclude Include="..\..\Source\Effects\Chorus.h"/>
     <ClInclude Include="..\..\Source\Effects\Factory\EffectsFactory.h"/>

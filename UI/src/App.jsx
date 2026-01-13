@@ -18,7 +18,7 @@ function App() {
     "Reverb": {"roomSize": 0.5, "damping": 0.5, "wetDryMix": 0.3},
     "Chorus": {"rate":1.7, "depth":0.8, "wetDryMix":1.0},
     "Delay": {"delayTime":0.5, "feedback":0.3, "wetDryMix":0.5},
-    "Distortion": {"drive":0.5, "wetDryMix":1.0},
+    "Distortion": {"drive":5.0, "wetDryMix":1.0},
     "WahWah": {"frequency":800.0, "resonance":4.0, "wetDryMix":0.7},
   }
 
@@ -28,6 +28,7 @@ function App() {
 
   const [audioList, setAudioList] = useState({})
   const [isRefreshing, setIsRefreshing] = useState(false);
+  
   
   // Add these state variables for the modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -107,6 +108,7 @@ function App() {
   const handleRefreshDevices = async () => {
     setIsRefreshing(true);
     await fetchAudioList();
+    await new Promise(resolve => setTimeout(resolve, 500)); // ensures the spin happens
     setIsRefreshing(false);
 };
 
@@ -223,15 +225,15 @@ function App() {
 return (
   <div className="min-h-screen bg-white flex flex-col">
     <header className="bg-gray-800 text-white flex justify-between items-center px-6 py-3">
-      <h1 className="text-2xl font-bold">TBC</h1>
-      <a href="#" className="text-sm hover:underline">
+      <h1 className="text-4xl font-bold">TBC</h1>
+      <a href="https://github.com/RyGuyFalls0/Dissertation-second-try" className="text-2xl hover:underline">
         Gitlab
       </a>
     </header>
 
-    <div className="mt-10 w-full ">
-      <Carousel />
-    </div>
+      <div className="mt-10 w-full ">
+        <Carousel />
+      </div>
 
     <main className="flex-1 flex flex-col items-center justify-center p-6">
       <h2 className="text-3xl font-bold mb-8">Effects</h2>
@@ -240,8 +242,8 @@ return (
       <DragDropContext onDragEnd={handleDragDrop}>
         <div className="grid grid-cols-2 gap-12 w-full max-w-3xl">
           {/* LEFT COLUMN */}
-          <div className="flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 flex-1 min-h-[250px]">
-            <div className="bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
+          <div className="flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 min-h-[250px]">
+            <div className="h-full bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
               <div className="card">
                 <div className="header">
                   <h3 className="text-lg font-semibold mb-4 center">Oyster</h3>
@@ -285,11 +287,11 @@ return (
           </div>
 
           {/* RIGHT COLUMN */}
-          <div className="flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 flex-1 min-h-[250px]">
-            <div className="bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
+          <div className="flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 min-h-[250px]">
+            <div className=" h-full bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
               <div className="card">
                 <div className="header">
-                  <h3 className="text-lg font-semibold mb-4">
+                  <h3 className="text-lg font-semibold mb-4 text-center">
                     Active Effects ({activeEffects.length}/5)
                   </h3>
                 </div>
@@ -303,7 +305,7 @@ return (
                     <div
                       {...provided.droppableProps}
                       ref={provided.innerRef}
-                      className={`p-4 rounded-xl min-h-[200px] transition-colors duration-200 ${
+                      className={`flex flex-col gap-2 p-4 rounded-xl min-h-[200px] transition-colors duration-200 ${
                         snapshot.isDraggingOver
                           ? 'bg-blue-100'
                           : 'bg-gray-50'
@@ -383,7 +385,6 @@ return (
             disabled={isRefreshing}
             className={`bg-white border-2 border-gray-300 rounded-full p-3 shadow-lg
               hover:bg-gray-50 hover:border-gray-400 transition-all
-              ${isRefreshing ? 'animate-spin' : ''}
             `}
             title="Refresh audio devices"
           >
@@ -397,6 +398,7 @@ return (
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className={`${isRefreshing ? 'animate-spin' : ''}`}
             >
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
             </svg>

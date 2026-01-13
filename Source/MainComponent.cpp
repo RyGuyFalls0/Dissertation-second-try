@@ -142,9 +142,7 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
     //DBG("Buffer RMS before processing: " << bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples));
 }
 
-void MainComponent::releaseResources()
-{
-}
+void MainComponent::releaseResources() { ; }
 
 //==============================================================================
 void MainComponent::paint(Graphics &g) { ; }
@@ -167,7 +165,6 @@ Resource MainComponent::getAudioDevices() {
 
     if (deviceType == nullptr) {
         auto errorResponse = R"({"status": "error", "message": "No device type available"})";
-        DBG("No device type in getAudioDevices()");
         return WebBrowserComponent::Resource{
             stringToVector(errorResponse),
             "application/json"
@@ -178,7 +175,6 @@ Resource MainComponent::getAudioDevices() {
 
     // Check if devices are configured
     if (setup.inputDeviceName.isEmpty() || setup.outputDeviceName.isEmpty()) {
-        DBG("No devices configured, attempting to reinitialize...");
         String error = deviceManager.initialise(
             2, 
             2,
@@ -187,7 +183,6 @@ Resource MainComponent::getAudioDevices() {
         );
 
         if (error.isNotEmpty()) {
-            DBG("Failed to reinitialize: " + error);
             devicesResult->setProperty("status", "error");
             devicesResult->setProperty("message", "No audio devices configured. Failed to reinitialize: " + error);
 
@@ -200,7 +195,6 @@ Resource MainComponent::getAudioDevices() {
 
         // Get the setup again after reinitialization
         setup = deviceManager.getAudioDeviceSetup();
-        DBG("Reinitialized with input: " + setup.inputDeviceName + ", output: " + setup.outputDeviceName);
     }
 
     // Now populate the device lists
@@ -386,7 +380,6 @@ Resource MainComponent::getTuning()
 }
 
 Resource MainComponent::getAudioPeaks() {
-	DBG("inside getAudioPeaks()");
     float min = currentMin.exchange(+1.0f, std::memory_order_acq_rel);
     float max = currentMax.exchange(-1.0f, std::memory_order_acq_rel);
 
@@ -403,7 +396,6 @@ Resource MainComponent::getAudioPeaks() {
         "{\"status\": \"success\", \"min\": " + String(min, 6) +
         ", \"max\": " + String(max, 6) + "}"
 	};
-	DBG("Audio Peaks Response: " + response);
     return Resource{ stringToVector(response), "application/json" };
 }
 
