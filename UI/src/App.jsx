@@ -18,7 +18,7 @@ function App() {
     "Reverb": {"roomSize": 0.5, "damping": 0.5, "wetDryMix": 0.3},
     "Chorus": {"rate":1.7, "depth":0.8, "wetDryMix":1.0},
     "Delay": {"delayTime":0.5, "feedback":0.3, "wetDryMix":0.5},
-    "Distortion": {"drive":0.5, "wetDryMix":1.0},
+    "Distortion": {"drive":5.0, "wetDryMix":1.0},
     "WahWah": {"frequency":800.0, "resonance":4.0, "wetDryMix":0.7},
   }
 
@@ -240,7 +240,7 @@ return (
 
       {/* DRAG DROP AREA */}
       <DragDropContext onDragEnd={handleDragDrop}>
-        <div className="grid grid-cols-2 gap-12 w-full max-w-3xl bg-red-50">
+        <div className="grid grid-cols-2 gap-12 w-full max-w-3xl">
           {/* LEFT COLUMN */}
           <div className="flex flex-col gap-2 rounded-xl p-4 transition-opacity duration-200 min-h-[250px]">
             <div className="h-full bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">

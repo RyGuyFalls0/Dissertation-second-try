@@ -66,7 +66,7 @@ void WahWah::updateFilterCoefficients()
     float alpha = std::sin(omega) / (2.0f * q);
 
     // Band-pass constant skirt gain
-    b0 = alpha;
+    b0 = q * alpha;
     b1 = 0.0f;
     b2 = -alpha;
     float a0 = 1.0f + alpha;

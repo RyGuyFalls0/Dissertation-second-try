@@ -54,8 +54,8 @@ std::unique_ptr<AudioEffects> EffectsFactory::createEffect(const String& name, D
 
     case EffectType::Distortion:
     {
-        float drive = 0.5f;
-        float mix = 1.0f;
+        float drive = 5.0f;
+        float mix = 0.8f;
 
         if (specs != nullptr)
         {

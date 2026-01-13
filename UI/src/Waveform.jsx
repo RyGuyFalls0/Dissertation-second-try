@@ -43,11 +43,14 @@ export default function LiveWaveform({ active }) {
         const data = await res.json();
 
         if (data.status === "success") {
+          console.log(data)
           maxValue = Math.abs(data.max);
         }
       } catch {
         maxValue = 1e-3;
       }
+
+      if (maxValue < 1e-3) { maxValue = 1e-3; } 
 
       // scale + clamp
       let v = Math.min(maxValue * SCALE, 1);
