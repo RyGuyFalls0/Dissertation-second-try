@@ -66,6 +66,7 @@ std::unique_ptr<AudioEffects> EffectsFactory::createEffect(const String& name, D
                 mix = (float)specs->getProperty("wetDryMix");
         }
 
+        drive = std::pow(100.0f, drive * 0.1f);
         effect = std::make_unique<Distortion>(drive, mix);
         break;
     }

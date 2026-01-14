@@ -19,8 +19,8 @@ void Distortion::process(float* leftChannel, float* rightChannel, int numSamples
         float dryL = leftChannel[i];
         float dryR = rightChannel[i];
 
-        float wetL = hardClip(leftChannel[i] * gainAmount);
-        float wetR = hardClip(rightChannel[i] * gainAmount);
+        float wetL = tube(leftChannel[i] * gainAmount);
+        float wetR = tube(rightChannel[i] * gainAmount);
 
         leftChannel[i] = dryL * (1.0f - mixAmount) + wetL * mixAmount;
         rightChannel[i] = dryR * (1.0f - mixAmount) + wetR * mixAmount;
@@ -34,6 +34,11 @@ float Distortion::hardClip(float sample)
     else if (sample < -1.0f)
         return -1.0f;
     return sample;
+}
+
+float Distortion::tube(float sample)
+{
+    return std::tanh(sample);
 }
 
 String Distortion::getName() const

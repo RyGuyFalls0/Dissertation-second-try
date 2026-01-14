@@ -13,7 +13,7 @@ const EFFECT_PARAMS = {
     wetDryMix: { label: "Mix", min: 0, max: 1, step: 0.01, default: 0.3, unit: "" }
   },
   Distortion: {
-    drive: { label: "Drive", min: 0, max: 10, step: 0.10, default: 5.0, unit: "" },
+    drive: { label: "Drive", min: 1, max: 10, step: 0.10, default: 5.0, unit: "" },
     wetDryMix: { label: "Mix", min: 0, max: 1, step: 0.01, default: 0.8, unit: "" }
   },
   Chorus: {

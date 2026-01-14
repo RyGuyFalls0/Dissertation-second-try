@@ -1,110 +1,58 @@
 import { useEffect, useRef } from "react";
+import { getAudioData } from "./api.jsx";
+import WaveSurfer from "wavesurfer.js";
 
-export default function LiveWaveform({ active }) {
-  const canvasRef = useRef(null);
-  const barsRef = useRef([]);
+function LiveWaveform({ active }) {
+  const containerRef = useRef(null);
+  const wsRef = useRef(null);
+  const timerRef = useRef(null);
 
-  const NUM_BARS = 400;
-  const FPS = 30;
-  const DECAY = 0.88;      // lower = faster fall
-  const SCALE = 3.0;       // gain for guitar input
+  const FPS = 20;
+  const SCALE = 3.0;
+  const NUM_SAMPLES = 400;
 
   useEffect(() => {
-    if (!active || !canvasRef.current) return;
+    if (!active || !containerRef.current) return;
 
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    // Small delay to ensure DOM is ready
+    const timeoutId = setTimeout(() => {
+      wsRef.current = WaveSurfer.create({
+        container: containerRef.current,
+        height: 100,
+        interact: false,
+        autoScroll: false,
+        autoCenter: false,
+        normalize: false,
+        waveColor: "red",
+        cursorWidth: 0,
+        barWidth: 5,
+        barGap: 2,
+        barRadius: 2,
+        partialRender: false,
+      });
 
-    // Init bars
-    barsRef.current = new Array(NUM_BARS).fill(0);
+      const wavesurfer = wsRef.current;
+      getAudioData(wavesurfer, SCALE, NUM_SAMPLES);
 
-    let rafId;
-    let timerId;
-
-    function resize() {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-
-    resize();
-    window.addEventListener("resize", resize);
-
-    // ---- FETCH AUDIO LEVEL ----
-    async function pollBackend() {
-      let maxValue = 0;
-
-      try {
-        const res = await fetch("/api/getAudioData");
-        const data = await res.json();
-
-        if (data.status === "success") {
-          console.log(data)
-          maxValue = Math.abs(data.max);
-        }
-      } catch {
-        maxValue = 1e-3;
-      }
-
-      if (maxValue < 1e-3) { maxValue = 1e-3; } 
-
-      // scale + clamp
-      let v = Math.min(maxValue * SCALE, 1);
-
-      // update bars with decay
-      for (let i = 0; i < NUM_BARS; i++) {
-        barsRef.current[i] = Math.max(
-          v,
-          barsRef.current[i] * DECAY
-        );
-      }
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const w = canvas.width;
-      const h = canvas.height;
-      const barWidth = w / NUM_BARS;
-
-      ctx.fillStyle = "red";
-
-      for (let i = 0; i < NUM_BARS; i++) {
-        const value = barsRef.current[i];
-        const barHeight = value * h;
-
-        ctx.fillRect(
-          i * barWidth,
-          (h - barHeight) / 2,
-          barWidth * 0.6,
-          barHeight
-        );
-      }
-
-      rafId = requestAnimationFrame(draw);
-    }
-
-    timerId = setInterval(pollBackend, 1000 / FPS);
-    draw();
+      timerRef.current = setInterval(
+        () => getAudioData(wavesurfer, SCALE, NUM_SAMPLES),
+        1000 / FPS
+      );
+    }, 10);
 
     return () => {
-      cancelAnimationFrame(rafId);
-      clearInterval(timerId);
-      window.removeEventListener("resize", resize);
+      clearTimeout(timeoutId);
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+
+      if (wsRef.current) {
+        wsRef.current.destroy();
+        wsRef.current = null;
+      }
     };
   }, [active]);
 
-  return (
-    <div className="w-full flex justify-center">
-      <canvas
-        ref={canvasRef}
-        className="w-full max-w-2xl"
-        style={{ height: "128px" }}
-      />
-    </div>
-  );
+  return <div ref={containerRef} className="w-full h-[100px]" />;
 }
+
+export default LiveWaveform;

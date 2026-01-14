@@ -16,6 +16,7 @@ public:
 
 private:
     float hardClip(float sample);
+	float tube(float sample);
 
     float gainAmount;
     float mixAmount;
