@@ -55,11 +55,16 @@ function Tuner({ active }) {
     };
   }, [active, armed]);
 
-  const ticks = Array.from({ length: 13 }, (_, i) => i - 6);
+  const ticks = Array.from({ length: 21 }, (_, i) => (i - 10) * 5);
+
+  const getNeedleColor = () => {
+    if (Math.abs(cents) < 10) return "#10b981"; 
+    return "#f59e0b";
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white">
-      <div className="w-[480px] rounded-2xl shadow-lg bg-zinc-900 border-zinc-800">
+      <div className="w-[480px] rounded-2xl shadow-lg bg-zinc-900 border border-zinc-800">
         <div className="p-8 space-y-6">
           {/* Note display */}
           <div className="text-center text-3xl font-medium tracking-wide">
@@ -67,39 +72,89 @@ function Tuner({ active }) {
           </div>
 
           {/* Tuner scale */}
-          <div className="relative h-24">
-            {/* Center line */}
-            <div className="absolute left-1/2 top-2 bottom-2 w-[3px] bg-white rounded" />
-
-            {/* Tick marks */}
-            <div className="absolute inset-x-4 top-1/2 h-px bg-zinc-600" />
-            <div className="absolute inset-x-4 top-1/2 flex justify-between">
-              {ticks.map((t) => (
-                <div
-                  key={t}
-                  className={`w-px ${
-                    Math.abs(t) === 6 ? "h-8" : "h-5"
-                  } bg-zinc-500`}
-                />
-              ))}
-            </div>
-
-            {/* Needle */}
-            <motion.div
-              className="absolute top-2 bottom-2 w-[3px] bg-white rounded"
-              animate={{ x: `${(cents / 50) * 100}%` }}
-              transition={{ type: "spring", stiffness: 120, damping: 14 }}
-              style={{ left: "50%" }}
-            />
+          <div className="relative h-24 bg-black rounded-lg overflow-hidden mx-4">
+            
+            <svg className="w-full h-full" viewBox="0 0 400 96">
+              {/* Green acceptable range box (±10 cents) */}
+              <rect
+                x={200 - 20}
+                y={38}
+                width={10 * 2 * 2}
+                height={20}
+                fill="rgba(16, 185, 129, 0.15)"
+                stroke="rgba(16, 185, 129, 0.3)"
+                strokeWidth={1}
+              />
+              
+              {/* Tick marks */}
+              {ticks.map((t, i) => {
+                const x = (i / 20) * 400;
+                const isCenter = t === 0;
+                const isMajor = t % 25 === 0;
+                const height = isCenter ? 30 : isMajor ? 22 : 15;
+                
+                return (
+                  <line
+                    key={t}
+                    x1={x}
+                    y1={48 - height / 2}
+                    x2={x}
+                    y2={48 + height / 2}
+                    stroke="rgba(255,255,255,0.3)"
+                    strokeWidth={1}
+                  />
+                );
+              })}
+              
+              {/* Thin center reference line */}
+              <line
+                x1={200}
+                y1={18}
+                x2={200}
+                y2={78}
+                stroke="rgba(255,255,255,0.4)"
+                strokeWidth={1}
+              />
+              
+              {/* Moving needle (thick line) */}
+              <motion.line
+                x1={200}
+                y1={18}
+                x2={200}
+                y2={78}
+                stroke={getNeedleColor()}
+                strokeWidth={6}
+                strokeLinecap="round"
+                animate={{ 
+                  x1: 200 + (cents * 2),
+                  x2: 200 + (cents * 2)
+                }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 100, 
+                  damping: 15 
+                }}
+              />
+            </svg>
           </div>
 
           {/* Status */}
-          <div className="text-center text-sm text-zinc-400">
-            {Math.abs(cents) < 5
-              ? "In tune"
-              : cents > 0
-              ? "Sharp"
-              : "Flat"}
+          <div className="text-center text-sm">
+            <span
+              className={`${
+                Math.abs(cents) < 5
+                  ? "text-green-400"
+                  : Math.abs(cents) < 15
+                  ? "text-amber-400"
+                  : "text-red-400"
+              }`}
+            >
+              {Math.abs(cents) < 5
+                ? "In tune"
+                : cents > 0
+                ? `Sharp (${cents > 0 ? '+' : ''}${cents.toFixed(1)}¢)`
+                : `Flat (${cents.toFixed(1)}¢)`}
+            </span>
           </div>
         </div>
       </div>
@@ -117,6 +172,7 @@ function Tuner({ active }) {
             text-black
             bg-white
             hover:border-black
+            transition-colors
           "
         >
           Start Tuner

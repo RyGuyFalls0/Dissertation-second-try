@@ -115,20 +115,41 @@ export const getTuning = async () => {
   }
 }
 
-export const getAudioData = async () => {
+export const getAudioData = async (wavesurfer, SCALE, NUM_SAMPLES) => {
   try {
-  const response = await fetch(`/api/getAudioData`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      },
-    });
-    const data = await response.json();
+    console.log("Starting fetch...");
+    const res = await fetch("/api/getAudioData");
+    const data = await res.json();
+    console.log("Data parsed:", data);
 
-    if (data.status === 'success') {
-      return data
+    let samples;
+
+    if (data.status === "success") {
+      samples = Float32Array.from(
+        data.samples.map(v => {
+          const s = (v ?? 0) * SCALE;
+          return Math.max(Math.min(s, 1.0), -1.0);
+        })
+      );
+    } else {
+      samples = new Float32Array(NUM_SAMPLES).fill(1e-3);
     }
-  } catch (err) {
-    console.log(err);
+
+    if (samples.length !== NUM_SAMPLES) {
+      const tmp = new Float32Array(NUM_SAMPLES);
+      tmp.set(samples.slice(0, NUM_SAMPLES));
+      samples = tmp;
+    }
+
+    const buffer = wavesurfer.getDecodedData();
+    console.log("meant to work", samples)
+    wavesurfer.load(buffer, samples, 5);
+
+  } catch (e) {
+    console.log(e);
+    const samples = new Float32Array(NUM_SAMPLES).fill(1e-3);
+    const buffer = wavesurfer.getDecodedData();
+    wavesurfer.load(buffer, [samples,samples], 5);
+    console.log("not working")
   }
-}
+};

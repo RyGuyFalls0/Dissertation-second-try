@@ -88,6 +88,7 @@ private:
     var getJsonParameter(const String& url);
 
     Resource getAudioPeaks();
+    Resource getAudioData();
 
 
     std::shared_ptr<std::vector<std::unique_ptr<AudioEffects>>> effectChain{ std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>() };
@@ -96,9 +97,15 @@ private:
 
     AudioDeviceManager deviceManager;
 
-
     std::atomic<float> currentLevel{ 0.0f };
+
+    //these might be obselete now
     std::atomic<float> currentMin{ 0.0f };
     std::atomic<float> currentMax{ 0.0f };
+
+    static constexpr int DS_SIZE = 400;
+    std::array<float, DS_SIZE> downsampledBlock;
+    std::atomic<bool> newBlockReady{ false };
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

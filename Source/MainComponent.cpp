@@ -122,20 +122,24 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
         }
     }
 
-    float blockMin = 1.0f;
-    float blockMax = -1.0f;
-
     const float* processedAudio = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+    const int inputSize = bufferToFill.numSamples;
 
-    for (int i = 0; i < bufferToFill.numSamples; ++i)
+    int step = inputSize / DS_SIZE; // buffer should usually be about 512 samples long
+	step = jmax(1, step);
+    
+    for (int i = 0; i < DS_SIZE; ++i)
     {
-        float s = processedAudio[i];
-        blockMin = jmin(blockMin, s);
-        blockMax = jmax(blockMax, s);
+        int index = i * step;
+        if (index >= inputSize)
+            downsampledBlock[i] = 1e-3f;
+        else
+            if (processedAudio[index] < 1e-3) { downsampledBlock[i] = 1e-3f; }
+            else { downsampledBlock[i] = processedAudio[index]; };
     }
 
-    currentMin.store(jmin(currentMin.load(), blockMin));
-    currentMax.store(jmax(currentMax.load(), blockMax));
+    newBlockReady.store(true, std::memory_order_release);
+
 
     auto level = bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples);
     currentLevel.store(level);
@@ -362,7 +366,7 @@ TuningResult MainComponent::analysePitch(float hz)
 
 Resource MainComponent::getTuning()
 {
-    if (tuner.confidence.load() < 0.6f)
+    if (tuner.confidence.load() < 0.8f)
     {
         auto response = R"("message": "Low confidence in pitch detection")";
         DBG(response);
@@ -399,6 +403,29 @@ Resource MainComponent::getAudioPeaks() {
     return Resource{ stringToVector(response), "application/json" };
 }
 
+Resource MainComponent::getAudioData()
+{
+    if (!newBlockReady.load())
+    {
+        return standardError(R"({"status": "error", "message": "No new audio data available"})");
+    }
+    newBlockReady.store(false);
+
+    juce::var audioArray;
+    for (const auto& sample : downsampledBlock)
+    {
+        audioArray.append(sample);
+    }
+
+    juce::var jsonObject = new juce::DynamicObject();
+    jsonObject.getDynamicObject()->setProperty("status", "success");
+    jsonObject.getDynamicObject()->setProperty("samples", audioArray);
+
+    String response = JSON::toString(jsonObject);
+
+    return Resource{ stringToVector(response), "application/json" };
+}
+
 auto MainComponent::getResource(const String &url) -> Resource
 {
     if (url.startsWith("/api/"))
@@ -421,7 +448,7 @@ auto MainComponent::getResource(const String &url) -> Resource
         else if (url.startsWith("/api/getTuning"))
             return getTuning();
         else if (url.startsWith("/api/getAudioData")) {
-			return getAudioPeaks();
+			return getAudioData();
         }
     }
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
