@@ -107,7 +107,6 @@ export const getTuning = async () => {
     const data = await response.json();
 
     if (data.status === 'success') {
-      console.log(data)
       return data
     }
   } catch (err) {
@@ -117,10 +116,8 @@ export const getTuning = async () => {
 
 export const getAudioData = async (wavesurfer, SCALE, NUM_SAMPLES) => {
   try {
-    console.log("Starting fetch...");
     const res = await fetch("/api/getAudioData");
     const data = await res.json();
-    console.log("Data parsed:", data);
 
     let samples;
 
@@ -142,14 +139,11 @@ export const getAudioData = async (wavesurfer, SCALE, NUM_SAMPLES) => {
     }
 
     const buffer = wavesurfer.getDecodedData();
-    console.log("meant to work", samples)
     wavesurfer.load(buffer, samples, 5);
 
   } catch (e) {
-    console.log(e);
     const samples = new Float32Array(NUM_SAMPLES).fill(1e-3);
     const buffer = wavesurfer.getDecodedData();
     wavesurfer.load(buffer, [samples,samples], 5);
-    console.log("not working")
   }
 };

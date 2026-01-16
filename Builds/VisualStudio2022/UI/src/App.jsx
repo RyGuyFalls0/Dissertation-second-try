@@ -25,7 +25,7 @@ function App() {
   const [activeEffectsMetadata, setActiveEffectsMetadata] = useState({})
   
   // Add these state variables for the modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEffectModalOpen, setisEffectModalOpen] = useState(false);
   const [selectedEffect, setSelectedEffect] = useState(null);
 
   useEffect(() => {
@@ -33,13 +33,13 @@ function App() {
   }, [activeEffectsMetadata]);
 
   // Add this handler for opening the modal
-  const handleEffectClick = (effect) => {
+  const handleActiveEffectClick = (effect) => {
     const effectSpec = effectsSpecs[effect.name] || {};
     setSelectedEffect({
       ...effect,
       specifics: activeEffectsMetadata[effect.id]?.specifics || effectSpec
     });
-    setIsModalOpen(true);
+    setisEffectModalOpen(true);
   };
 
   // Add this handler for saving effect parameters
@@ -207,7 +207,7 @@ function App() {
                               className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md text-center cursor-grab"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleEffectClick(effect);
+                                handleActiveEffectClick(effect);
                               }}
                             >
                               <div className="flex items-center justify-center gap-2">
@@ -232,8 +232,8 @@ function App() {
     {/* Add the modal component */}
     <EffectModal
       effect={selectedEffect}
-      isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
+      isOpen={isEffectModalOpen}
+      onClose={() => setisEffectModalOpen(false)}
       onSave={handleSaveEffectValue}
     />
   </div>
