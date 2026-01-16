@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useRef } from "react"
+import ReverbAnimation from "./canvas/ReverbAnimation"
 
 const EFFECT_INFO = {
     Delay: {
@@ -48,15 +49,16 @@ const EFFECT_INFO = {
 }
 
 function InfoModal({ effect, isOpen, onClose}) {
+    const modalRef = useRef(null);
 
     if (!isOpen || !effect) return null;
-
     const info = EFFECT_INFO[effect.name] || {}
 
 return (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
     onClick={onClose}>
-    <div className="bg-white rounded-xl p-6 w-[28rem] shadow-2xl"
+    <ReverbAnimation modal={modalRef}/>
+    <div ref={modalRef} className="bg-white rounded-xl p-6 w-[28rem] shadow-2xl relative z-10"
     onClick={(e) => e.stopPropagation()}>
       <h2 className="text-2xl font-bold mb-6 text-center">{effect.name}</h2>
 
