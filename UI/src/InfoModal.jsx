@@ -1,5 +1,7 @@
 import { useRef } from "react"
+import React from "react"
 import ReverbAnimation from "./canvas/ReverbAnimation"
+import ChorusAnimation from "./canvas/ChorusAnimation"
 
 const EFFECT_INFO = {
     Delay: {
@@ -18,7 +20,8 @@ const EFFECT_INFO = {
         "room size": "You got this one" ,
         "damping": "Dampening simulates the surface of reflection - high dampening simulates a surface like foam where high frequencies are absorbed more" ,
         "mix": "Controls the volume balance between the original sound (dry) and the echo (wet)"
-        }
+        },
+        animation: <ReverbAnimation />
     },
     Distortion: {
         "name": "Distortion",
@@ -35,7 +38,8 @@ const EFFECT_INFO = {
         "rate": "Rate sets how quickly the oscillation happens",
         "depth": "Depth defines how much the signal oscillates or how far out of tune the copies go." ,
         "mix": "Controls the volume balance between the original sound (dry) and the echo (wet)"
-        }
+        },
+        animation: <ChorusAnimation />
     },
     WahWah: {
         "name": "Wah Wah",
@@ -57,12 +61,12 @@ function InfoModal({ effect, isOpen, onClose}) {
 return (
   <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center"
     onClick={onClose}>
-    <ChorusAnimation modal={modalRef}/>
-        <div
+     {info.animation && React.cloneElement(info.animation, { modal: modalRef })}
+      <div
         ref={modalRef}
         className="border-2 border-black border-solid bg-white rounded-xl p-6 w-[28rem] shadow-2xl relative z-10"
         onClick={(e) => e.stopPropagation()}
-        >
+      >
       <h2 className="text-2xl font-bold mb-6 text-center">{effect.name}</h2>
 
       <div className="space-y-4">

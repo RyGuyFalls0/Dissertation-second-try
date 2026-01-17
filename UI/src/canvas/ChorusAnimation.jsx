@@ -13,17 +13,22 @@ function ChorusAnimation({modal}) {
 
     // Ball settings
     const ballRadius = 15;
-    let x = [canvas.width / 2]*10;
+    let x = Array(10).fill(canvas.width / 4);
     let y = [];
-    for (var i = 0 ; i < 10; i++) {
-        y.append((rect.height/10) * i);
+    for (var i = 1 ; i <= 11; i++) {
+        y.push((rect.bottom+rect.top)*i/11);
     }
-    let dx = [2,4,6,8,10,12,14,16,18,20]; 
+    let dx = Array.from(
+      { length: Math.round((10 - 5) / 0.5) + 1 },
+      (_, i) => 5 + i * 0.5
+    );
 
-    function drawBall(x, y) {
+    let colour = ["#89CFF0","#94BCDA","#9EA9C4","#A997AF","#B48499","#BF7183","#C95E6D","#D44B57","#DF3841","#EA262C","#F41316","#FF0000"]
+
+    function drawBall(x, y, colour) {
       ctx.beginPath();
       ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-      ctx.fillStyle = "#89CFF0";
+      ctx.fillStyle = colour;
       ctx.fill();
       ctx.closePath();
     }
@@ -35,8 +40,28 @@ function ChorusAnimation({modal}) {
       ctx.strokeRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
 
       for (var i = 0 ; i < 10; i++) {
-        drawBall(x[i], y[i]);
+        drawBall(x[i], y[i], colour[i]);
+        if (x[i] + dx[i] > rect.right + 200 || x[i] + dx[i] < rect.left - 200) {
+          dx[i] = -dx[i]
+        }
+        x[i] += dx[i]
       }
+      requestAnimationFrame(draw);
     }
+    draw(); // Start animation loop
+
   });
+
+  return (
+    <div classname="relative">
+    <canvas
+      ref={canvasRef}
+      width={window.innerWidth}
+      height={window.innerHeight}
+      className="absolute inset-0 pointer-events-none z-0"
+    />
+    </div>
+  );
 }
+
+export default ChorusAnimation
