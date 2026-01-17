@@ -53,7 +53,7 @@ function ChorusAnimation({modal}) {
   });
 
   return (
-    <div classname="relative">
+    <div className="relative">
     <canvas
       ref={canvasRef}
       width={window.innerWidth}

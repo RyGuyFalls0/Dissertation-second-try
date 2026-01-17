@@ -2,6 +2,7 @@ import { useRef } from "react"
 import React from "react"
 import ReverbAnimation from "./canvas/ReverbAnimation"
 import ChorusAnimation from "./canvas/ChorusAnimation"
+import DistortionAnimation from "./canvas/DistortionAnimation"
 
 const EFFECT_INFO = {
     Delay: {
@@ -29,7 +30,8 @@ const EFFECT_INFO = {
         "general": "Distortion clips a rounded (sine) waveform to flatten out its peaks and troughs turning the signal square-(ish)",
         "drive": "Amplifies the signal such that more parts of the signal are clipped",
         "mix": "Controls the volume balance between the original sound (dry) and the echo (wet)"
-        }
+        },
+        animation: <DistortionAnimation />
     },
     Chorus: {
         "name": "Chorus",
