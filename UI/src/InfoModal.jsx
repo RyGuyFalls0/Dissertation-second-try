@@ -55,11 +55,14 @@ function InfoModal({ effect, isOpen, onClose}) {
     const info = EFFECT_INFO[effect.name] || {}
 
 return (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+  <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center"
     onClick={onClose}>
-    <ReverbAnimation modal={modalRef}/>
-    <div ref={modalRef} className="bg-white rounded-xl p-6 w-[28rem] shadow-2xl relative z-10"
-    onClick={(e) => e.stopPropagation()}>
+    <ChorusAnimation modal={modalRef}/>
+        <div
+        ref={modalRef}
+        className="border-2 border-black border-solid bg-white rounded-xl p-6 w-[28rem] shadow-2xl relative z-10"
+        onClick={(e) => e.stopPropagation()}
+        >
       <h2 className="text-2xl font-bold mb-6 text-center">{effect.name}</h2>
 
       <div className="space-y-4">
