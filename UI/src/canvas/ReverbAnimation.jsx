@@ -72,7 +72,7 @@ function ReverbAnimation({modal}) {
   }, [modal]);
 
   return (
-    <div classname="relative">
+    <div>
     <canvas
       ref={canvasRef}
       width={window.innerWidth}

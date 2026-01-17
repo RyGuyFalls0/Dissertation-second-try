@@ -8,7 +8,7 @@ function DistortionAnimation({ modal }) {
     const ctx = canvas.getContext("2d");
 
     const modalEl = modal.current;
-      if (!modalEl) return;
+    if (!modalEl) return;
 
     const rect = modalEl.getBoundingClientRect();
 
@@ -22,11 +22,12 @@ function DistortionAnimation({ modal }) {
       ctx.strokeStyle = colour;
       ctx.lineWidth = 2;
       ctx.strokeRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+      ctx.strokeRect(0,0, canvas.width, canvas.height)
     }
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawDistortion(rect);
+      drawDistortion();
 
       blur += addBlur ? 1 : -1;
       if (blur >= 100) addBlur = false;
@@ -39,7 +40,7 @@ function DistortionAnimation({ modal }) {
   }, [modal]);
 
   return (
-    <div className="relative">
+    <div>
       <canvas
         ref={canvasRef}
         width={window.innerWidth}
