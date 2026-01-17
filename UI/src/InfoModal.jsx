@@ -3,6 +3,7 @@ import React from "react"
 import ReverbAnimation from "./canvas/ReverbAnimation"
 import ChorusAnimation from "./canvas/ChorusAnimation"
 import DistortionAnimation from "./canvas/DistortionAnimation"
+import DelayAnimation from "./canvas/DelayAnimation"
 
 const EFFECT_INFO = {
     Delay: {
@@ -12,7 +13,8 @@ const EFFECT_INFO = {
         "delay time": "This sets the length of time between the original sound and the echo being heard",
         "feedback": "How many times the echo will repeat, not that the echo will diminish slightly each time",
         "mix": "Controls the volume balance between the original sound (dry) and the echo (wet)"
-        }
+        },
+        animation: <DelayAnimation />
     },
     Reverb: {
         "name": "Reverb",
