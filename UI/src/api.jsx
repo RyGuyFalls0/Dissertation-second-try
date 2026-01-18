@@ -148,9 +148,9 @@ export const getAudioData = async (wavesurfer, SCALE, NUM_SAMPLES) => {
   }
 };
 
-export const turnMicOn = async () => {
+export const startMicrophone = async () => {
   try {
-    res = await fetch("/api/turnMicOn");
+    res = await fetch("/api/startMicrohone");
     const data = await res.json();
     if (data.status === "success") {
       return "success";
@@ -161,9 +161,9 @@ export const turnMicOn = async () => {
   }
 };
 
-export const turnMicOff = async () => {
+export const stopMicrophone = async () => {
   try {
-    res = await fetch("/api/turnMicOff");
+    res = await fetch("/api/stopMicrophone");
     const data = await res.json();
     if (data.status === "success") {
       return "success";

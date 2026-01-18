@@ -58,12 +58,10 @@ private:
 	Tuner tuner;
     std::atomic<bool> tunerEnabled { false };
 
-    enum TransportState
-    {
-        Stopped,
-        Recording
-    };
-    TransportState transportState;
+    bool micMuted = false;
+
+    float gain = 20.0f;
+	bool micOn = true;
 
 
     WebBrowserComponent webView;

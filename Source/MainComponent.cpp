@@ -104,7 +104,7 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
 
         for (int sample = 0; sample < bufferToFill.numSamples; ++sample)
         {
-            if (std::abs(channelData[sample]) < 0.0001) {
+            if (std::abs(channelData[sample]) < 0.0001 || micOn) {
                 channelData[sample] = 0;
             }
             channelData[sample] *= gain;
@@ -461,9 +461,13 @@ auto MainComponent::getResource(const String &url) -> Resource
             return handleStopTuner();
         else if (url.startsWith("/api/getTuning"))
             return getTuning();
-        else if (url.startsWith("/api/getAudioData")) {
+        else if (url.startsWith("/api/getAudioData")) 
 			return getAudioData();
-        }
+        else if (url.startsWith("/api/startMicrophone"))
+            return handleStartMicrophone();
+        else if (url.startsWith("/api/stopMicrophone"))
+            return handleStopMicrophone();
+      
     }
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
         .getChildFile("UI")
@@ -484,28 +488,15 @@ auto MainComponent::getResource(const String &url) -> Resource
 
 Resource MainComponent::handleStartMicrophone()
 {
-    transportState = Recording;
-
+	micOn = true;
     auto response = R"({"status": "success", "message": "Microphone started"})";
     return Resource{stringToVector(response), "application/json"};
 }
 
 Resource MainComponent::handleStopMicrophone()
 {
-    transportState = Stopped;
-
+	micOn = false;
     auto response = R"({"status": "success", "message": "Microphone stopped"})";
-    return Resource{stringToVector(response), "application/json"};
-}
-
-Resource MainComponent::handleGetLevel()
-{
-    String state = transportState == Recording ? "recording" : "stopped";
-    float level = currentLevel.load();
-
-    String response = "{\"status\":\"success\",\"state\":\"" + state +
-                      "\",\"level\":" + String(level, 6) + "}";
-
     return Resource{stringToVector(response), "application/json"};
 }
 

@@ -1,7 +1,7 @@
 import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
 import { useState, useEffect } from "react"
 import Carousel from "./Carousel";
-import { sendEffectsData, getAudioList, setAudioIO, turnMicOff, turnMicOn } from "./api.jsx"
+import { sendEffectsData, getAudioList, setAudioIO, stopMicrophone, startMicrophone } from "./api.jsx"
 import EffectModal from "./EffectModal";
 import InfoModal from "./InfoModal.jsx";
 import { MicOffImage, MicOnImage } from "./assets/micImages.jsx"; 
@@ -135,7 +135,7 @@ function App() {
   };
 
   const handleMicChange = async () => {
-    const response = await (micOn ? turnMicOff() : turnMicOn());
+    const response = await (micOn ? startMicrophone() : stopMicrophone());
     if (response === "success") {
       setMicOn(!micOn);
     }
