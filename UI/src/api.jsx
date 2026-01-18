@@ -147,3 +147,29 @@ export const getAudioData = async (wavesurfer, SCALE, NUM_SAMPLES) => {
     wavesurfer.load(buffer, [samples,samples], 5);
   }
 };
+
+export const turnMicOn = async () => {
+  try {
+    res = await fetch("/api/turnMicOn");
+    const data = await res.json();
+    if (data.status === "success") {
+      return "success";
+    }
+    else return "Microphone still inactive";
+  } catch (e) {
+    return "Microphone still inactive";
+  }
+};
+
+export const turnMicOff = async () => {
+  try {
+    res = await fetch("/api/turnMicOff");
+    const data = await res.json();
+    if (data.status === "success") {
+      return "success";
+    }
+    else return "Microphone still active";
+  } catch (e) {
+    return "Microphone still active";
+  }
+};

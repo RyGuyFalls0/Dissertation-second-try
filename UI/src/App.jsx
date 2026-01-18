@@ -1,10 +1,10 @@
 import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
 import { useState, useEffect } from "react"
 import Carousel from "./Carousel";
-import { sendEffectsData, getAudioList, setAudioIO } from "./api.jsx"
+import { sendEffectsData, getAudioList, setAudioIO, turnMicOff, turnMicOn } from "./api.jsx"
 import EffectModal from "./EffectModal";
 import InfoModal from "./InfoModal.jsx";
-import { micOffImage, micOnImage } from "./assets/micImages.jsx"; 
+import { MicOffImage, MicOnImage } from "./assets/micImages.jsx"; 
 
 function App() {
   const effectsList = [
@@ -134,6 +134,16 @@ function App() {
     }));
   };
 
+  const handleMicChange = async () => {
+    const response = await (micOn ? turnMicOff() : turnMicOn());
+    if (response === "success") {
+      setMicOn(!micOn);
+    }
+    else {
+      window.alert(response);
+    }
+  }
+
   const handleOutputDeviceChange = async (event) => {
     const selectedDevice = event.target.value;
     try {
@@ -242,17 +252,24 @@ return (
         Gitlab
       </a>
     </header>
+    <div className="flex flex-col items-center w-full gap-8">
+    <div className="mt-10 w-full">
+      <Carousel />
+    </div>
 
-      <div className="mt-10 w-full ">
-        <Carousel />
-      </div>
-
-      <div onClick = {() => setMicOn(!micOn)}>
+    <div className="w-full flex items-center justify-center">
+      <div 
+        onClick={() => handleMicChange()}
+        className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer 
+                    ${micOn ? "bg-green-200" : "bg-red-500"}`}
+      >
         {micOn ? <MicOnImage /> : <MicOffImage />}
       </div>
+    </div>
+    </div>
 
-    <main className="flex-1 flex flex-col items-center justify-center p-6">
-      <h2 className="text-3xl font-bold mb-8">Effects</h2>
+    <main className="flex-1 flex flex-col items-center justify-center p-2">
+      <h2 className="text-3xl font-bold mb-4">Effects</h2>
 
       {/* DRAG DROP AREA */}
       <DragDropContext onDragEnd={handleDragDrop}>
