@@ -102,7 +102,7 @@ function Metronome() {
     isPlaying ? stopMetronome() : startMetronome();
   };
 
-  const volumePercentage = Math.round(volume * 100);
+  const volumePercentage = Math.round(volume * 10);
 
   return (
     <div className="flex justify-center items-center min-h-screen">

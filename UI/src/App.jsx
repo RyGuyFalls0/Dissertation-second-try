@@ -4,6 +4,7 @@ import Carousel from "./Carousel";
 import { sendEffectsData, getAudioList, setAudioIO } from "./api.jsx"
 import EffectModal from "./EffectModal";
 import InfoModal from "./InfoModal.jsx";
+import { micOffImage, micOnImage } from "./assets/micImages.jsx"; 
 
 function App() {
   const effectsList = [
@@ -36,6 +37,9 @@ function App() {
   const [isInfoModalOpen, setisInfoModalOpen] = useState(false);
   const [selectedActiveEffect, setSelectedActiveEffect] = useState(null);
   const [selectedInfoEffect, setSelectedInfoEffect] = useState(null);
+
+  const [micOn, setMicOn] = useState(false);
+
 
   useEffect(() => {
     sendEffectsData(activeEffectsMetadata);
@@ -241,6 +245,10 @@ return (
 
       <div className="mt-10 w-full ">
         <Carousel />
+      </div>
+
+      <div onClick = {() => setMicOn(!micOn)}>
+        {micOn ? <MicOnImage /> : <MicOffImage />}
       </div>
 
     <main className="flex-1 flex flex-col items-center justify-center p-6">
