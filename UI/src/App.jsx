@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import Carousel from "./Carousel";
 import { sendEffectsData, getAudioList, setAudioIO } from "./api.jsx"
 import EffectModal from "./EffectModal";
+import InfoModal from "./InfoModal.jsx";
 
 function App() {
   const effectsList = [
@@ -31,8 +32,10 @@ function App() {
   
   
   // Add these state variables for the modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedEffect, setSelectedEffect] = useState(null);
+  const [isEffectModalOpen, setisEffectModalOpen] = useState(false);
+  const [isInfoModalOpen, setisInfoModalOpen] = useState(false);
+  const [selectedActiveEffect, setSelectedActiveEffect] = useState(null);
+  const [selectedInfoEffect, setSelectedInfoEffect] = useState(null);
 
   useEffect(() => {
     sendEffectsData(activeEffectsMetadata);
@@ -96,14 +99,19 @@ function App() {
     }
   };
 
-  const handleEffectClick = (effect) => {
+  const handleActiveEffectClick = (effect) => {
     const effectSpec = effectsSpecs[effect.name] || {};
-    setSelectedEffect({
+    setSelectedActiveEffect({
       ...effect,
       specifics: activeEffectsMetadata[effect.id]?.specifics || effectSpec
     });
-    setIsModalOpen(true);
+    setisEffectModalOpen(true);
   };
+
+  const handleInfoEffectClick = (effect) => {
+    setSelectedInfoEffect({...effect})
+    setisInfoModalOpen(true);
+  }
 
   const handleRefreshDevices = async () => {
     setIsRefreshing(true);
@@ -272,6 +280,10 @@ return (
                               {...provided.draggableProps}
                               ref={provided.innerRef}
                               className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md text-center cursor-grab"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleInfoEffectClick(effect);
+                              }}
                             >
                               {effect.name}
                             </div>
@@ -325,7 +337,7 @@ return (
                               className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md text-center cursor-grab"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleEffectClick(effect);
+                                handleActiveEffectClick(effect);
                               }}
                             >
                               <div className="flex items-center justify-center gap-2">
@@ -438,10 +450,16 @@ return (
     </main>
 
     <EffectModal
-      effect={selectedEffect}
-      isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
+      effect={selectedActiveEffect}
+      isOpen={isEffectModalOpen}
+      onClose={() => setisEffectModalOpen(false)}
       onSave={handleSaveEffectValue}
+    />
+
+    <InfoModal
+    effect={selectedInfoEffect}
+    isOpen={isInfoModalOpen}
+    onClose={() => setisInfoModalOpen(false)}
     />
   </div>
 )};

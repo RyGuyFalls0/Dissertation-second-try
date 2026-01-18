@@ -19,8 +19,8 @@ void Distortion::process(float* leftChannel, float* rightChannel, int numSamples
         float dryL = leftChannel[i];
         float dryR = rightChannel[i];
 
-        float wetL = tube(leftChannel[i] * gainAmount);
-        float wetR = tube(rightChannel[i] * gainAmount);
+        float wetL = tube(leftChannel[i] * gainAmount) / gainAmount;
+        float wetR = tube(rightChannel[i] * gainAmount) / gainAmount;
 
         leftChannel[i] = dryL * (1.0f - mixAmount) + wetL * mixAmount;
         rightChannel[i] = dryR * (1.0f - mixAmount) + wetR * mixAmount;

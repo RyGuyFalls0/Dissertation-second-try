@@ -95,7 +95,21 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
 
 void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill)
 {
+    auto* buffer = bufferToFill.buffer;
+    const float gain = 20.0f; // your base gain
 
+    for (int channel = 0; channel < buffer->getNumChannels(); ++channel)
+    {
+        float* channelData = buffer->getWritePointer(channel, bufferToFill.startSample);
+
+        for (int sample = 0; sample < bufferToFill.numSamples; ++sample)
+        {
+            if (std::abs(channelData[sample]) < 0.0001) {
+                channelData[sample] = 0;
+            }
+            channelData[sample] *= gain;
+        }
+    }
     if (tunerEnabled.load())
     {
         const float* input = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
