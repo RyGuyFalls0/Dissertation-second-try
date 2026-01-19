@@ -173,3 +173,16 @@ export const stopMicrophone = async () => {
     return "Microphone still active";
   }
 };
+
+export const applyMasterGain = async () => {
+  try {
+  res = await fetch("/api/setMasterGain");
+  const data = await res.json();
+  if (data.status === "success") {
+      return "success";
+    }
+    else return "Gain cannot be set";
+  } catch (e) {
+    return "Gain cannot be set";
+  }
+}
