@@ -14,15 +14,26 @@ function DistortionAnimation({ modal }) {
 
     let blur = 0;
     let addBlur = true;
-    const colour = "rgba(255, 50, 100, 1)";
+    const colour = "rgba(150, 17, 17, 0.8)"; // Dark shadow color
 
     function drawDistortion() {
+      const padding = 200; // How far outside viewport to draw
+      
       ctx.shadowBlur = blur;
       ctx.shadowColor = colour;
-      ctx.strokeStyle = colour;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
-      ctx.strokeRect(0,0, canvas.width, canvas.height)
+      ctx.fillStyle = colour;
+
+      // Top shadow - draw rectangle above viewport
+      ctx.fillRect(-padding, -padding - blur, canvas.width + padding * 2, padding + blur);
+      
+      // Bottom shadow
+      ctx.fillRect(-padding, canvas.height, canvas.width + padding * 2, padding + blur);
+      
+      // Left shadow
+      ctx.fillRect(-padding - blur, -padding, padding + blur, canvas.height + padding * 2);
+      
+      // Right shadow
+      ctx.fillRect(canvas.width, -padding, padding + blur, canvas.height + padding * 2);
     }
 
     function draw() {
