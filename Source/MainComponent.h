@@ -60,7 +60,7 @@ private:
 
     bool micMuted = false;
 
-    float gain = 5.0f;
+    std::atomic<float> masterGainDB{ 5.0f };
 	bool micOn = true;
 
 

@@ -5,6 +5,7 @@ import { sendEffectsData, getAudioList, setAudioIO, stopMicrophone, startMicroph
 import EffectModal from "./EffectModal";
 import InfoModal from "./InfoModal.jsx";
 import { MicOffImage, MicOnImage } from "./assets/micImages.jsx"; 
+import BinIcon from "./assets/BinIcon.jsx"
 import GainSlider from "./GainSlider.jsx";
 import ChangeIO from "./ChangeIO.jsx"
 
@@ -41,8 +42,8 @@ function App() {
   const [selectedInfoEffect, setSelectedInfoEffect] = useState(null);
 
   // Mic and Gain state
-  const [micOn, setMicOn] = useState(false);
-  const [masterGain, setMasterGain] = useState(0.5);
+  const [micOn, setMicOn] = useState(true);
+  const [masterGain, setMasterGain] = useState(20);
 
 
   useEffect(() => {
@@ -139,7 +140,8 @@ function App() {
   };
 
   const handleMicChange = async () => {
-    const response = await (micOn ? startMicrophone() : stopMicrophone());
+    const response = await (micOn ? stopMicrophone() : startMicrophone());
+    console.log(response)
     if (response === "success") {
       setMicOn(!micOn);
     }
@@ -180,7 +182,8 @@ function App() {
 
     const handleMasterGainChange = async (gain) => {
       setMasterGain(gain);
-      const res = await applyMasterGain();
+      const gainDb = -60 + (uiGain / 100) * 72;
+      const res = await applyMasterGain(gainDb);
       if (res === "success") return;
       console.log(res);
     }
@@ -191,7 +194,7 @@ function App() {
     };
 
   const handleDragDrop = (results) => {
-    const {source, destination, type} = results;
+    const {source, destination, _} = results;
     if (!destination) return;
     if (source.droppableId === destination.droppableId  && source.index === destination.index) return;
 
@@ -340,12 +343,19 @@ return (
         <div className="flex flex-col gap-2 rounded-xl p-4 transition-opacity h-full duration-200 min-h-[250px] w-full">
           <div className="h-full bg-gray-100 p-6 rounded-2xl shadow-sm flex flex-col items-center">
             <div className="card">
-              <div className="header">
-                <h3 className="text-lg font-semibold mb-4 text-center">
+              <div className="header relative w-full flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-center flex-1">
                   Active Effects ({activeEffects.length}/5)
                 </h3>
-              </div>
 
+                <button
+                  type="button"
+                  className="ml-2 text-gray-500 hover:text-red-600 transition-colors"
+                  onClick={clearActiveEffects}
+                >
+                  <BinIcon />
+                </button>
+              </div>
               <Droppable
                 droppableId="activeEffects"
                 type="effects"

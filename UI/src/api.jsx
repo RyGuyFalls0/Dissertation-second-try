@@ -150,7 +150,7 @@ export const getAudioData = async (wavesurfer, SCALE, NUM_SAMPLES) => {
 
 export const startMicrophone = async () => {
   try {
-    res = await fetch("/api/startMicrohone");
+    const res = await fetch("/api/startMicrophone");
     const data = await res.json();
     if (data.status === "success") {
       return "success";
@@ -163,26 +163,33 @@ export const startMicrophone = async () => {
 
 export const stopMicrophone = async () => {
   try {
-    res = await fetch("/api/stopMicrophone");
+    const res = await fetch("/api/stopMicrophone");
     const data = await res.json();
+    console.log(data);
     if (data.status === "success") {
       return "success";
     }
     else return "Microphone still active";
   } catch (e) {
-    return "Microphone still active";
+    return "Microphone still active" + e;
   }
 };
 
-export const applyMasterGain = async () => {
+export const applyMasterGain = async (gainDB) => {
   try {
-  res = await fetch("/api/setMasterGain");
-  const data = await res.json();
-  if (data.status === "success") {
+    const params = new URLSearchParams({
+      config: JSON.stringify({ gainDB })
+    });
+
+    const res = await fetch(`/api/setMasterGain?${params}`);
+    const data = await res.json();
+
+    if (data.status === "success") {
       return "success";
+    } else {
+      return "Gain cannot be set";
     }
-    else return "Gain cannot be set";
   } catch (e) {
-    return "Gain cannot be set";
+    return `Gain cannot be set: ${e.message}`;
   }
-}
+};
