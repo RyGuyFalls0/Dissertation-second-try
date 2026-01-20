@@ -451,7 +451,8 @@ Resource MainComponent::handleSetMasterGain(const String& url) {
     }
 
     auto jsonObject = json.getDynamicObject();
-    int gain = jsonObject->getProperty("gain");
+    int gain = jsonObject->getProperty("gainDB");
+    DBG(gain << "<<  This is the gain that is sent from UI << " << std::pow(10.0f, gain / 20.0f););
     masterGainDB.store(gain);
 	return Resource{ stringToVector(R"({"status": "success", "message": "Master gain set successfully"})"), "application/json" };
 }
