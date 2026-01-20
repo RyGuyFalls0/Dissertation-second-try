@@ -440,6 +440,11 @@ Resource MainComponent::getAudioData()
     return Resource{ stringToVector(response), "application/json" };
 }
 
+
+Resource MainComponent::handleSetMasterGain(const String& url) {
+    return Resource{};
+}
+
 auto MainComponent::getResource(const String &url) -> Resource
 {
     if (url.startsWith("/api/"))
@@ -461,12 +466,14 @@ auto MainComponent::getResource(const String &url) -> Resource
             return handleStopTuner();
         else if (url.startsWith("/api/getTuning"))
             return getTuning();
-        else if (url.startsWith("/api/getAudioData")) 
-			return getAudioData();
+        else if (url.startsWith("/api/getAudioData"))
+            return getAudioData();
         else if (url.startsWith("/api/startMicrophone"))
             return handleStartMicrophone();
         else if (url.startsWith("/api/stopMicrophone"))
             return handleStopMicrophone();
+        else if (url.startsWith("/api/setMasterGain"));
+		    return handleSetMasterGain(url);
       
     }
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()

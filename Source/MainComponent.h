@@ -60,7 +60,7 @@ private:
 
     bool micMuted = false;
 
-    float gain = 20.0f;
+    float gain = 5.0f;
 	bool micOn = true;
 
 
@@ -70,7 +70,8 @@ private:
 
     Resource handleStartMicrophone();
     Resource handleStopMicrophone();
-    Resource handleGetLevel();
+    //Resource handleGetLevel();
+	Resource handleSetMasterGain(const String& url);
   /*  Resource handleFileUpload(const String& url);*/
     //Resource handleGetUploadStatus();
     Resource getAudioDevices();

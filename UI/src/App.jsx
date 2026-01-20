@@ -315,13 +315,15 @@ return (
                             {...provided.dragHandleProps}
                             {...provided.draggableProps}
                             ref={provided.innerRef}
-                            className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded-md text-center cursor-grab"
+                            className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 pl-2 pr-4 rounded-md cursor-grab flex items-center justify-between"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleInfoEffectClick(effect);
                             }}
                           >
-                            {effect.name}
+                            <span className="text-gray-400 opacity-50 text-xs">{index + 1}&nbsp;</span>
+                            <span>{effect.name}</span>
+                            <span className="opacity-0 text-xs">{index + 1}</span>
                           </div>
                         )}
                       </Draggable>
