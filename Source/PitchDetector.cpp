@@ -3,6 +3,7 @@
 void PitchDetector::prepare(double sampleRate, int maxBlockSize)
 {
     sr = sampleRate;
+	attackSkipLength = static_cast<int>(0.05 * sr); // skip first 50ms after attack
 }
 
 void PitchDetector::process(const float* input, int numSamples)
@@ -35,6 +36,18 @@ bool PitchDetector::getPitch(float& detectedHz, float& confidence)
 
 void PitchDetector::pushSample(float s)
 {
+	// handle attack phase of guitar note because the pitch detection is unreliable (LUV RYGUY!!)
+    float absSample = std::abs(s);
+    envelope = envelopeCoeff * envelope + (1.0f - envelopeCoeff) * absSample;
+
+    float delta = envelope - lastEnvelope;
+    lastEnvelope = envelope;
+
+    if (delta > attackThreshold)
+    {
+        attackSkipSamples = attackSkipLength;
+    }
+
     ringBuffer[writeIndex++] = s;
     writeIndex %= bufferSize;
 
@@ -43,6 +56,12 @@ void PitchDetector::pushSample(float s)
         samplesCollected = 0;
         estimatePitch();
 		ready.store(true);
+    }
+
+    if (attackSkipSamples > 0)
+    {
+        --attackSkipSamples;
+        return;
     }
 }
 
@@ -90,12 +109,12 @@ void PitchDetector::estimatePitch()
 
 	auto rawHz = sr / tauEstimate; // frequency in Hz
     auto confidence = 1.0f - yinBuffer[tauEstimate];
-    lastConfidence = jlimit(0.0f, 1.0f, confidence); //confidence 
+    lastConfidence = jlimit(0.0f, 1.0f, confidence); 
 
-    constexpr float alpha = 0.15f; // arbitrary value -- need justification
+    float weight = confidence * confidence; // swapped from alpha (arbitrary value) to a confidence based weighting
 
     if (lastPitch == 0.0f)
         lastPitch = rawHz; // initialise
     else
-        lastPitch = alpha * rawHz + (1.0f - alpha) * lastPitch;
+        lastPitch = weight * rawHz + (1.0f - weight) * lastPitch;
 };

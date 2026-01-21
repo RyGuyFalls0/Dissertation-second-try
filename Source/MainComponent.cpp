@@ -43,11 +43,12 @@ namespace
         return result;
     }
 
-    static std::vector<std::byte> stringToVector(const String &str) {
-    auto utf8 = str.toRawUTF8();
-    auto numBytes = str.getNumBytesAsUTF8();
-    return std::vector<std::byte>(reinterpret_cast<const std::byte*>(utf8), 
-                                   reinterpret_cast<const std::byte*>(utf8) + numBytes);
+    static std::vector<std::byte> stringToVector(const String &str)
+    {
+        auto utf8 = str.toRawUTF8();
+        auto numBytes = str.getNumBytesAsUTF8();
+        return std::vector<std::byte>(reinterpret_cast<const std::byte *>(utf8),
+                                      reinterpret_cast<const std::byte *>(utf8) + numBytes);
     }
 };
 
@@ -85,7 +86,7 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
     pitchDetector.prepare(sampleRate, samplesPerBlockExpected);
     if (effectChain != nullptr)
     {
-        for (auto& effect : *effectChain)
+        for (auto &effect : *effectChain)
         {
             effect->prepare(sampleRate, samplesPerBlockExpected);
         }
@@ -94,26 +95,31 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
 
 void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill)
 {
-    auto* buffer = bufferToFill.buffer;
-	float gainDB = masterGainDB.load();
+    auto *buffer = bufferToFill.buffer;
+    float gainDB = masterGainDB.load();
     const float linearGain = std::pow(10.0f, gainDB / 20.0f);
 
     for (int channel = 0; channel < buffer->getNumChannels(); ++channel)
     {
-        float* channelData = buffer->getWritePointer(channel, bufferToFill.startSample);
+        float *channelData = buffer->getWritePointer(channel, bufferToFill.startSample);
 
         for (int sample = 0; sample < bufferToFill.numSamples; ++sample)
         {
-            if (!micOn) {
+            if (!micOn)
+            {
                 channelData[sample] = 0.0;
                 continue;
             }
             channelData[sample] *= linearGain;
         }
     }
+    if (!micOn)
+    {
+        return;
+    }
     if (tunerEnabled.load())
     {
-        const float* input = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+        const float *input = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
         pitchDetector.process(input, bufferToFill.numSamples);
 
         float detectedHz = 0.0f;
@@ -137,28 +143,32 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
         }
     }
 
-    const float* processedAudio = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+    const float *processedAudio = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
     const int inputSize = bufferToFill.numSamples;
 
     int step = inputSize / DS_SIZE; // buffer should usually be about 512 samples long
-	step = jmax(1, step);
-    
+    step = jmax(1, step);
+
     for (int i = 0; i < DS_SIZE; ++i)
     {
         int index = i * step;
         if (index >= inputSize)
             downsampledBlock[i] = 1e-3f;
+        else if (processedAudio[index] < 1e-3)
+        {
+            downsampledBlock[i] = 1e-3f;
+        }
         else
-            if (processedAudio[index] < 1e-3) { downsampledBlock[i] = 1e-3f; }
-            else { downsampledBlock[i] = processedAudio[index]; };
+        {
+            downsampledBlock[i] = processedAudio[index];
+        };
     }
 
     newBlockReady.store(true, std::memory_order_release);
 
-
     auto level = bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples);
     currentLevel.store(level);
-    //DBG("Buffer RMS before processing: " << bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples));
+    // DBG("Buffer RMS before processing: " << bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples));
 }
 
 void MainComponent::releaseResources() { ; }
@@ -171,45 +181,47 @@ void MainComponent::resized()
     webView.setBounds(getLocalBounds());
 }
 
-Resource MainComponent::standardError(const String& message) {
+Resource MainComponent::standardError(const String &message)
+{
     return Resource{
         stringToVector(message),
-        "application / json"
-    };
+        "application / json"};
 }
 
-Resource MainComponent::getAudioDevices() {
+Resource MainComponent::getAudioDevices()
+{
     auto setup = deviceManager.getAudioDeviceSetup();
-    auto* deviceType = deviceManager.getCurrentDeviceTypeObject();
+    auto *deviceType = deviceManager.getCurrentDeviceTypeObject();
 
-    if (deviceType == nullptr) {
+    if (deviceType == nullptr)
+    {
         auto errorResponse = R"({"status": "error", "message": "No device type available"})";
         return WebBrowserComponent::Resource{
             stringToVector(errorResponse),
-            "application/json"
-        };
+            "application/json"};
     }
 
     DynamicObject::Ptr devicesResult = new DynamicObject();
 
     // Check if devices are configured
-    if (setup.inputDeviceName.isEmpty() || setup.outputDeviceName.isEmpty()) {
+    if (setup.inputDeviceName.isEmpty() || setup.outputDeviceName.isEmpty())
+    {
         String error = deviceManager.initialise(
-            2, 
+            2,
             2,
             nullptr,
-            true  // selectDefaultDeviceOnFailure
+            true // selectDefaultDeviceOnFailure
         );
 
-        if (error.isNotEmpty()) {
+        if (error.isNotEmpty())
+        {
             devicesResult->setProperty("status", "error");
             devicesResult->setProperty("message", "No audio devices configured. Failed to reinitialize: " + error);
 
             String jsonResponse = JSON::toString(var(devicesResult.get()));
             return WebBrowserComponent::Resource{
                 stringToVector(jsonResponse),
-                "application/json"
-            };
+                "application/json"};
         }
 
         // Get the setup again after reinitialization
@@ -224,10 +236,10 @@ Resource MainComponent::getAudioDevices() {
     Array<var> inputDevices;
     Array<var> outputDevices;
 
-    for (auto& name : deviceType->getDeviceNames(true))
+    for (auto &name : deviceType->getDeviceNames(true))
         inputDevices.add(name);
 
-    for (auto& name : deviceType->getDeviceNames(false))
+    for (auto &name : deviceType->getDeviceNames(false))
         outputDevices.add(name);
 
     devicesResult->setProperty("inputDevices", inputDevices);
@@ -238,11 +250,10 @@ Resource MainComponent::getAudioDevices() {
 
     return WebBrowserComponent::Resource{
         stringToVector(jsonResponse),
-        "application/json"
-    };
+        "application/json"};
 }
 
-var MainComponent::getJsonParameter(const String& url)
+var MainComponent::getJsonParameter(const String &url)
 {
     URL parsedUrl(url);
     auto paramValues = parsedUrl.getParameterValues();
@@ -259,7 +270,8 @@ var MainComponent::getJsonParameter(const String& url)
     return result;
 }
 
-Resource MainComponent::setAudioDevices(const String& url) {
+Resource MainComponent::setAudioDevices(const String &url)
+{
     auto json = getJsonParameter(url);
 
     if (!json.isObject() || json.getDynamicObject()->getProperties().size() == 0)
@@ -297,7 +309,8 @@ Resource MainComponent::setAudioDevices(const String& url) {
     }
 }
 
-Resource MainComponent::createEffectsChain(const String& url) {
+Resource MainComponent::createEffectsChain(const String &url)
+{
     auto json = getJsonParameter(url);
     if (!json.isObject() || json.getDynamicObject()->getProperties().size() == 0)
     {
@@ -310,7 +323,7 @@ Resource MainComponent::createEffectsChain(const String& url) {
 
     std::vector<std::pair<int, EffectInfo>> sortedEffects;
 
-    for (auto& prop : jsonObject->getProperties())
+    for (auto &prop : jsonObject->getProperties())
     {
         auto effectId = prop.name.toString();
         auto effectData = prop.value.getDynamicObject();
@@ -322,17 +335,17 @@ Resource MainComponent::createEffectsChain(const String& url) {
             info.position = (int)effectData->getProperty("position");
             info.specifics = effectData->getProperty("specifics").getDynamicObject();
 
-            sortedEffects.push_back({ info.position, info });
+            sortedEffects.push_back({info.position, info});
         }
     }
 
     std::sort(sortedEffects.begin(), sortedEffects.end(),
-        [](const auto& a, const auto& b)
-        { return a.first < b.first; });
+              [](const auto &a, const auto &b)
+              { return a.first < b.first; });
 
     auto newChain = std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>();
     newChain->reserve(5); // max of 5 effects for now
-    for (const auto& [pos, effectInfo] : sortedEffects)
+    for (const auto &[pos, effectInfo] : sortedEffects)
     {
         std::unique_ptr<AudioEffects> effect;
         effect = EffectsFactory::createEffect(effectInfo.name, effectInfo.specifics);
@@ -346,7 +359,7 @@ Resource MainComponent::createEffectsChain(const String& url) {
     std::atomic_store(&effectChain, newChain);
 
     auto response = R"({"status": "success"})";
-    return Resource{ stringToVector(response), "application/json" };
+    return Resource{stringToVector(response), "application/json"};
 }
 
 Resource MainComponent::handleStartTuner()
@@ -362,43 +375,41 @@ Resource MainComponent::handleStopTuner()
     tunerEnabled.store(false);
     pitchDetector.reset();
     auto response = R"({"status": "success", "message": "Tuner halted"})";
-    return Resource{ stringToVector(response), "application/json" };
+    return Resource{stringToVector(response), "application/json"};
 }
 
 TuningResult MainComponent::analysePitch(float hz)
 {
     static const String notes[] =
-    { "C","C#","D","D#","E","F","F#","G","G#","A","A#","B" };
+        {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 
-	float midi = 69.0f + 12.0f * std::log2(hz / 440.0f); // standard frequency -> MIDI note conversion
+    float midi = 69.0f + 12.0f * std::log2(hz / 440.0f); // standard frequency -> MIDI note conversion
     int nearest = juce::roundToInt(midi);
 
     float cents = (midi - nearest) * 100.0f;
     int noteIndex = nearest % 12;
     int octave = nearest / 12 - 1;
-    return { notes[noteIndex], octave, cents };
+    return {notes[noteIndex], octave, cents};
 }
 
 Resource MainComponent::getTuning()
 {
-    if (tuner.confidence.load() < 0.8f)
+    if (tuner.confidence.load() < 0.5f)
     {
         auto response = R"("message": "Low confidence in pitch detection")";
-        DBG(response);
         return standardError(response);
-	}
-	auto result = analysePitch(tuner.pitchHz.load());
+    }
+    auto result = analysePitch(tuner.pitchHz.load());
     String response = {
         "{\"status\": \"success\", \"note\": \"" + result.note +
         "\", \"octave\": " + String(result.octave) +
-        ", \"cents\": " + String(result.cents, 1) + "}"
-    };
-    
+        ", \"cents\": " + String(result.cents, 1) + "}"};
 
-    return Resource{ stringToVector(response), "application/json" };
+    return Resource{stringToVector(response), "application/json"};
 }
 
-Resource MainComponent::getAudioPeaks() {
+Resource MainComponent::getAudioPeaks()
+{
     float min = currentMin.exchange(+1.0f, std::memory_order_acq_rel);
     float max = currentMax.exchange(-1.0f, std::memory_order_acq_rel);
 
@@ -413,9 +424,8 @@ Resource MainComponent::getAudioPeaks() {
 
     String response = {
         "{\"status\": \"success\", \"min\": " + String(min, 6) +
-        ", \"max\": " + String(max, 6) + "}"
-	};
-    return Resource{ stringToVector(response), "application/json" };
+        ", \"max\": " + String(max, 6) + "}"};
+    return Resource{stringToVector(response), "application/json"};
 }
 
 Resource MainComponent::getAudioData()
@@ -427,7 +437,7 @@ Resource MainComponent::getAudioData()
     newBlockReady.store(false);
 
     juce::var audioArray;
-    for (const auto& sample : downsampledBlock)
+    for (const auto &sample : downsampledBlock)
     {
         audioArray.append(sample);
     }
@@ -438,10 +448,11 @@ Resource MainComponent::getAudioData()
 
     String response = JSON::toString(jsonObject);
 
-    return Resource{ stringToVector(response), "application/json" };
+    return Resource{stringToVector(response), "application/json"};
 }
 
-Resource MainComponent::handleSetMasterGain(const String& url) {
+Resource MainComponent::handleSetMasterGain(const String &url)
+{
     auto json = getJsonParameter(url);
 
     if (!json.isObject() || json.getDynamicObject()->getProperties().size() == 0)
@@ -454,7 +465,7 @@ Resource MainComponent::handleSetMasterGain(const String& url) {
     int gain = jsonObject->getProperty("gainDB");
     DBG(gain << "<<  This is the gain that is sent from UI << " << std::pow(10.0f, gain / 20.0f););
     masterGainDB.store(gain);
-	return Resource{ stringToVector(R"({"status": "success", "message": "Master gain set successfully"})"), "application/json" };
+    return Resource{stringToVector(R"({"status": "success", "message": "Master gain set successfully"})"), "application/json"};
 }
 
 auto MainComponent::getResource(const String &url) -> Resource
@@ -485,83 +496,82 @@ auto MainComponent::getResource(const String &url) -> Resource
         else if (url.startsWith("/api/stopMicrophone"))
             return handleStopMicrophone();
         else if (url.startsWith("/api/setMasterGain"))
-		    return handleSetMasterGain(url);
-      
+            return handleSetMasterGain(url);
     }
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
-        .getChildFile("UI")
-        .getChildFile("dist");
+                                             .getChildFile("UI")
+                                             .getChildFile("dist");
 
     const auto resourceToRetrieve = url == "/" ? "index.html"
-        : url.fromFirstOccurrenceOf("/", false, false);
+                                               : url.fromFirstOccurrenceOf("/", false, false);
     const auto resource = resourceFileRoot.getChildFile(resourceToRetrieve);
 
     if (resource.existsAsFile())
     {
         const auto extension = resourceToRetrieve.fromLastOccurrenceOf(".", false, false);
-        return Resource{ streamToVector(resource), getMimeForExtension(extension) };
+        return Resource{streamToVector(resource), getMimeForExtension(extension)};
     }
 
-    return Resource{ {}, "text/plain" };
+    return Resource{{}, "text/plain"};
 }
 
 Resource MainComponent::handleStartMicrophone()
 {
-	micOn = true;
+    micOn = true;
     auto response = R"({"status": "success", "message": "Microphone started"})";
     return Resource{stringToVector(response), "application/json"};
 }
 
 Resource MainComponent::handleStopMicrophone()
 {
-	micOn = false;
+    micOn = false;
     auto response = R"({"status": "success", "message": "Microphone stopped"})";
     return Resource{stringToVector(response), "application/json"};
 }
 
-//Resource MainComponent::handleFileUpload(const String &url)
+// Resource MainComponent::handleFileUpload(const String &url)
 //{
-//    fileChooser = std::make_unique<FileChooser>("Select an audio file to upload",
-//                                                File::getSpecialLocation(File::userDocumentsDirectory),
-//                                                "*.wav;*.mp3;*.aiff;*.flac");
+//     fileChooser = std::make_unique<FileChooser>("Select an audio file to upload",
+//                                                 File::getSpecialLocation(File::userDocumentsDirectory),
+//                                                 "*.wav;*.mp3;*.aiff;*.flac");
 //
-//    auto flags = FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles;
+//     auto flags = FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles;
 //
-//    fileChooser->launchAsync(flags, [this](const FileChooser &chooser)
-//                             {
-//            auto file = chooser.getResult();
-//            if (file != File{})
-//            {
-//                uploadedFile = file;
-//                DBG("File uploaded: " + uploadedFile.getFullPathName());
-//            }
-//            else
-//            {
-//                DBG("File selection cancelled");
-//            } });
-//    auto response = R"({"status": "success", "message": "File chooser opened"})";
-//    return Resource{stringToVector(response), "application/json"};
-//}
+//     fileChooser->launchAsync(flags, [this](const FileChooser &chooser)
+//                              {
+//             auto file = chooser.getResult();
+//             if (file != File{})
+//             {
+//                 uploadedFile = file;
+//                 DBG("File uploaded: " + uploadedFile.getFullPathName());
+//             }
+//             else
+//             {
+//                 DBG("File selection cancelled");
+//             } });
+//     auto response = R"({"status": "success", "message": "File chooser opened"})";
+//     return Resource{stringToVector(response), "application/json"};
+// }
 
-//Resource MainComponent::handleGetUploadStatus()
+// Resource MainComponent::handleGetUploadStatus()
 //{
-//    DynamicObject::Ptr jsonObject = new DynamicObject();
-//    jsonObject->setProperty("status", "success");
+//     DynamicObject::Ptr jsonObject = new DynamicObject();
+//     jsonObject->setProperty("status", "success");
 //
-//    if (uploadedFile != File{})
-//    {
-//        jsonObject->setProperty("uploaded", true);
-//        jsonObject->setProperty("filename", uploadedFile.getFileName());
-//        jsonObject->setProperty("path", uploadedFile.getFullPathName());
-//    }
-//    else
-//    {
-//        jsonObject->setProperty("uploaded", false);
-//    }
+//     if (uploadedFile != File{})
+//     {
+//         jsonObject->setProperty("uploaded", true);
+//         jsonObject->setProperty("filename", uploadedFile.getFileName());
+//         jsonObject->setProperty("path", uploadedFile.getFullPathName());
+//     }
+//     else
+//     {
+//         jsonObject->setProperty("uploaded", false);
+//     }
 //
-//    String response = JSON::toString(var(jsonObject.get()));
-//    return Resource{stringToVector(response), "application/json"};
-//}
+//     String response = JSON::toString(var(jsonObject.get()));
+//     return Resource{stringToVector(response), "application/json"};
+// }
 
 // look into vectorised transformations
 // look into other juce applications to understand gaps in the market and directions to take the project
