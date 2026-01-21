@@ -21,6 +21,7 @@ void audiofx::Reverb::prepare(double sampleRate, int samplesPerBlock)
 
 void audiofx::Reverb::process(float* leftChannel, float* rightChannel, int numSamples)
 {
+    ScopedNoDenormals noDenormals;
     if (leftChannel == nullptr || rightChannel == nullptr)
         return;
 
@@ -38,7 +39,7 @@ void audiofx::Reverb::updateParameters()
     params.roomSize = roomSize;
     params.damping = damping;
     params.wetLevel = wetDryMix;
-    params.dryLevel = 1.0f - wetDryMix;
+	params.dryLevel = std::sqrt(1.0f - wetDryMix * wetDryMix); // this is to maintain energy levels (otherwise a dip is heard when increasing wet mix)
     params.width = 1.0f;
     params.freezeMode = 0.0f;
 

@@ -267,7 +267,7 @@ return (
     <header className="bg-gray-800 text-white flex justify-between items-center px-6 py-3">
       <h1 className="text-4xl font-bold">TBC</h1>
       <a href="https://github.com/RyGuyFalls0/Dissertation-second-try" className="text-2xl hover:underline">
-        Gitlab
+        Github
       </a>
     </header>
     <div className="flex flex-col items-center w-full gap-8">
