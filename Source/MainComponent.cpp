@@ -53,8 +53,7 @@ namespace
 
 //==============================================================================
 MainComponent::MainComponent()
-    : transportState(Stopped),
-      AudioAppComponent(deviceManager),
+    : AudioAppComponent(deviceManager),
       webView(WebBrowserComponent::Options{}
                   .withBackend(WebBrowserComponent::Options::Backend::webview2)
                   .withWinWebView2Options(
@@ -96,7 +95,8 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
 void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill)
 {
     auto* buffer = bufferToFill.buffer;
-    const float gain = 20.0f; // your base gain
+	float gainDB = masterGainDB.load();
+    const float linearGain = std::pow(10.0f, gainDB / 20.0f);
 
     for (int channel = 0; channel < buffer->getNumChannels(); ++channel)
     {
@@ -104,10 +104,11 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
 
         for (int sample = 0; sample < bufferToFill.numSamples; ++sample)
         {
-            if (std::abs(channelData[sample]) < 0.0001) {
-                channelData[sample] = 0;
+            if (!micOn) {
+                channelData[sample] = 0.0;
+                continue;
             }
-            channelData[sample] *= gain;
+            channelData[sample] *= linearGain;
         }
     }
     if (tunerEnabled.load())
@@ -215,7 +216,7 @@ Resource MainComponent::getAudioDevices() {
         setup = deviceManager.getAudioDeviceSetup();
     }
 
-    // Now populate the device lists
+    // Populate the device lists
     devicesResult->setProperty("status", "success");
     devicesResult->setProperty("currentInput", setup.inputDeviceName);
     devicesResult->setProperty("currentOutput", setup.outputDeviceName);
@@ -440,6 +441,22 @@ Resource MainComponent::getAudioData()
     return Resource{ stringToVector(response), "application/json" };
 }
 
+Resource MainComponent::handleSetMasterGain(const String& url) {
+    auto json = getJsonParameter(url);
+
+    if (!json.isObject() || json.getDynamicObject()->getProperties().size() == 0)
+    {
+        String response = R"({"status": "error", "message": "Missing or empty config parameter"})";
+        return standardError(response);
+    }
+
+    auto jsonObject = json.getDynamicObject();
+    int gain = jsonObject->getProperty("gainDB");
+    DBG(gain << "<<  This is the gain that is sent from UI << " << std::pow(10.0f, gain / 20.0f););
+    masterGainDB.store(gain);
+	return Resource{ stringToVector(R"({"status": "success", "message": "Master gain set successfully"})"), "application/json" };
+}
+
 auto MainComponent::getResource(const String &url) -> Resource
 {
     if (url.startsWith("/api/"))
@@ -461,9 +478,15 @@ auto MainComponent::getResource(const String &url) -> Resource
             return handleStopTuner();
         else if (url.startsWith("/api/getTuning"))
             return getTuning();
-        else if (url.startsWith("/api/getAudioData")) {
-			return getAudioData();
-        }
+        else if (url.startsWith("/api/getAudioData"))
+            return getAudioData();
+        else if (url.startsWith("/api/startMicrophone"))
+            return handleStartMicrophone();
+        else if (url.startsWith("/api/stopMicrophone"))
+            return handleStopMicrophone();
+        else if (url.startsWith("/api/setMasterGain"))
+		    return handleSetMasterGain(url);
+      
     }
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
         .getChildFile("UI")
@@ -484,28 +507,15 @@ auto MainComponent::getResource(const String &url) -> Resource
 
 Resource MainComponent::handleStartMicrophone()
 {
-    transportState = Recording;
-
+	micOn = true;
     auto response = R"({"status": "success", "message": "Microphone started"})";
     return Resource{stringToVector(response), "application/json"};
 }
 
 Resource MainComponent::handleStopMicrophone()
 {
-    transportState = Stopped;
-
+	micOn = false;
     auto response = R"({"status": "success", "message": "Microphone stopped"})";
-    return Resource{stringToVector(response), "application/json"};
-}
-
-Resource MainComponent::handleGetLevel()
-{
-    String state = transportState == Recording ? "recording" : "stopped";
-    float level = currentLevel.load();
-
-    String response = "{\"status\":\"success\",\"state\":\"" + state +
-                      "\",\"level\":" + String(level, 6) + "}";
-
     return Resource{stringToVector(response), "application/json"};
 }
 

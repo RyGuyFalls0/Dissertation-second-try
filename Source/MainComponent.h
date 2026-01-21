@@ -58,12 +58,10 @@ private:
 	Tuner tuner;
     std::atomic<bool> tunerEnabled { false };
 
-    enum TransportState
-    {
-        Stopped,
-        Recording
-    };
-    TransportState transportState;
+    bool micMuted = false;
+
+    std::atomic<float> masterGainDB{ 5.0f };
+	bool micOn = true;
 
 
     WebBrowserComponent webView;
@@ -72,7 +70,8 @@ private:
 
     Resource handleStartMicrophone();
     Resource handleStopMicrophone();
-    Resource handleGetLevel();
+    //Resource handleGetLevel();
+	Resource handleSetMasterGain(const String& url);
   /*  Resource handleFileUpload(const String& url);*/
     //Resource handleGetUploadStatus();
     Resource getAudioDevices();

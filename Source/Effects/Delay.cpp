@@ -35,14 +35,14 @@ void Delay::process(float* leftChannel, float* rightChannel, int numSamples)
         float delayedSampleL = delayLineLeft.popSample(0);
         float inputL = leftChannel[i];
         delayLineLeft.pushSample(0, inputL + delayedSampleL * feedbackAmount);
-        leftChannel[i] = inputL * (1.0f - wetDryMix) + delayedSampleL * wetDryMix;
+		leftChannel[i] = inputL * std::sqrt(1.0f - wetDryMix * wetDryMix) + delayedSampleL * wetDryMix; // maintain energy levels
 
         if (rightChannel)
         {
             float delayedSampleR = delayLineRight.popSample(0);
             float inputR = rightChannel[i];
             delayLineRight.pushSample(0, inputR + delayedSampleR * feedbackAmount);
-            rightChannel[i] = inputR * (1.0f - wetDryMix) + delayedSampleR * wetDryMix;
+			rightChannel[i] = inputR * std::sqrt(1.0f - wetDryMix * wetDryMix) + delayedSampleR * wetDryMix; // maintain energy levels
         }
     }
 }
