@@ -84,13 +84,12 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
     currentLevel.store(0.0f);
 
     pitchDetector.prepare(sampleRate, samplesPerBlockExpected);
-    if (effectChain != nullptr)
-    {
-        for (auto &effect : *effectChain)
-        {
-            effect->prepare(sampleRate, samplesPerBlockExpected);
-        }
-    }
+    auto chain = std::atomic_load(&activeEffectChain);
+    if (!chain)
+        return;
+
+    for (auto& effect : *chain)
+        effect->prepare(sampleRate, samplesPerBlockExpected);
 }
 
 void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill)
@@ -98,6 +97,7 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
     auto *buffer = bufferToFill.buffer;
     float gainDB = masterGainDB.load();
     const float linearGain = std::pow(10.0f, gainDB / 20.0f);
+    auto chain = std::atomic_load(&activeEffectChain);
 
     for (int channel = 0; channel < buffer->getNumChannels(); ++channel)
     {
@@ -130,14 +130,15 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
             tuner.confidence.store(confidence);
         }
     }
-    else if (!effectChain->empty())
+ 
+    else if (chain && !chain->empty())
     {
         auto *leftChannel = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
         auto *rightChannel = bufferToFill.buffer->getNumChannels() > 1
                                  ? bufferToFill.buffer->getWritePointer(1, bufferToFill.startSample)
                                  : nullptr;
 
-        for (auto &effect : *effectChain)
+        for (auto &effect : *chain)
         {
             effect->process(leftChannel, rightChannel, bufferToFill.numSamples);
         }
@@ -314,7 +315,10 @@ Resource MainComponent::createEffectsChain(const String &url)
     auto json = getJsonParameter(url);
     if (!json.isObject() || json.getDynamicObject()->getProperties().size() == 0)
     {
-        effectChain->clear();
+        auto emptyChain = std::make_shared<EffectChain>();
+
+        previousEffectChain = std::atomic_exchange(&activeEffectChain, emptyChain);
+
         String response = R"({"status": "success", "message": "Missing or empty metadata parameter"})";
         return standardError(response);
     }
@@ -356,7 +360,7 @@ Resource MainComponent::createEffectsChain(const String &url)
         }
     }
     // chain does not store any previous data when effect is added or removed
-    std::atomic_store(&effectChain, newChain);
+    previousEffectChain = std::atomic_exchange(&activeEffectChain, newChain);
 
     auto response = R"({"status": "success"})";
     return Resource{stringToVector(response), "application/json"};

@@ -6,6 +6,7 @@
 #include "PitchDetector.h"
 
 using namespace juce;
+using EffectChain = std::vector<std::unique_ptr<AudioEffects>>;
 using Resource = WebBrowserComponent::Resource;
 
 //==============================================================================
@@ -90,7 +91,8 @@ private:
     Resource getAudioData();
 
 
-    std::shared_ptr<std::vector<std::unique_ptr<AudioEffects>>> effectChain{ std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>() };
+    std::shared_ptr<EffectChain> activeEffectChain{ std::make_shared<EffectChain>() };
+    std::shared_ptr<EffectChain> previousEffectChain;
 	double currentSampleRate = 44100;
 
 

@@ -186,7 +186,7 @@ function App() {
 
     const handleMasterGainChange = async (gain) => {
       setMasterGain(gain);
-      const gainDb = -60 + (gain / 100) * 72;
+      const gainDb = -60 + (gain*1.5 / 100) * 72;
       const res = await applyMasterGain(gainDb);
       if (res === "success") return;
       console.log(res);
