@@ -111,7 +111,7 @@ void PitchDetector::estimatePitch()
     auto confidence = 1.0f - yinBuffer[tauEstimate];
     lastConfidence = jlimit(0.0f, 1.0f, confidence); 
 
-    float weight = confidence * confidence; // swapped from alpha (arbitrary value) to a confidence based weighting
+    float weight = confidence * confidence; 
 
     if (lastPitch == 0.0f)
         lastPitch = rawHz; // initialise

@@ -69,6 +69,7 @@ MainComponent::MainComponent()
     webView.goToURL(webView.getResourceProviderRoot());
 
     deviceManager.initialise(2, 2, nullptr, true);
+    deviceManager.setCurrentAudioDeviceType("ASIO", true);
     setAudioChannels(2, 2);
 }
 
@@ -249,7 +250,7 @@ Resource MainComponent::getAudioDevices()
     String jsonResponse = JSON::toString(var(devicesResult.get()), false);
     DBG("Generated JSON: " + jsonResponse);
 
-    return WebBrowserComponent::Resource{
+    return Resource{
         stringToVector(jsonResponse),
         "application/json"};
 }
@@ -348,7 +349,7 @@ Resource MainComponent::createEffectsChain(const String &url)
               { return a.first < b.first; });
 
     auto newChain = std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>();
-    newChain->reserve(5); // max of 5 effects for now
+    newChain->reserve(5); // max of 5 effects 
     for (const auto &[pos, effectInfo] : sortedEffects)
     {
         std::unique_ptr<AudioEffects> effect;
@@ -359,7 +360,7 @@ Resource MainComponent::createEffectsChain(const String &url)
             newChain->push_back(std::move(effect));
         }
     }
-    // chain does not store any previous data when effect is added or removed
+
     previousEffectChain = std::atomic_exchange(&activeEffectChain, newChain);
 
     auto response = R"({"status": "success"})";
@@ -440,13 +441,13 @@ Resource MainComponent::getAudioData()
     }
     newBlockReady.store(false);
 
-    juce::var audioArray;
+    var audioArray;
     for (const auto &sample : downsampledBlock)
     {
         audioArray.append(sample);
     }
 
-    juce::var jsonObject = new juce::DynamicObject();
+    var jsonObject = new DynamicObject();
     jsonObject.getDynamicObject()->setProperty("status", "success");
     jsonObject.getDynamicObject()->setProperty("samples", audioArray);
 
@@ -532,50 +533,3 @@ Resource MainComponent::handleStopMicrophone()
     auto response = R"({"status": "success", "message": "Microphone stopped"})";
     return Resource{stringToVector(response), "application/json"};
 }
-
-// Resource MainComponent::handleFileUpload(const String &url)
-//{
-//     fileChooser = std::make_unique<FileChooser>("Select an audio file to upload",
-//                                                 File::getSpecialLocation(File::userDocumentsDirectory),
-//                                                 "*.wav;*.mp3;*.aiff;*.flac");
-//
-//     auto flags = FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles;
-//
-//     fileChooser->launchAsync(flags, [this](const FileChooser &chooser)
-//                              {
-//             auto file = chooser.getResult();
-//             if (file != File{})
-//             {
-//                 uploadedFile = file;
-//                 DBG("File uploaded: " + uploadedFile.getFullPathName());
-//             }
-//             else
-//             {
-//                 DBG("File selection cancelled");
-//             } });
-//     auto response = R"({"status": "success", "message": "File chooser opened"})";
-//     return Resource{stringToVector(response), "application/json"};
-// }
-
-// Resource MainComponent::handleGetUploadStatus()
-//{
-//     DynamicObject::Ptr jsonObject = new DynamicObject();
-//     jsonObject->setProperty("status", "success");
-//
-//     if (uploadedFile != File{})
-//     {
-//         jsonObject->setProperty("uploaded", true);
-//         jsonObject->setProperty("filename", uploadedFile.getFileName());
-//         jsonObject->setProperty("path", uploadedFile.getFullPathName());
-//     }
-//     else
-//     {
-//         jsonObject->setProperty("uploaded", false);
-//     }
-//
-//     String response = JSON::toString(var(jsonObject.get()));
-//     return Resource{stringToVector(response), "application/json"};
-// }
-
-// look into vectorised transformations
-// look into other juce applications to understand gaps in the market and directions to take the project
