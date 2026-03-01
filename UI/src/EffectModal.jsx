@@ -17,7 +17,7 @@ const EFFECT_PARAMS = {
     wetDryMix: { label: "Mix", min: 0, max: 1, step: 0.01, default: 0.8, unit: "" }
   },
   Chorus: {
-    rate: { label: "Rate", min: 0.1, max: 10, step: 0.1, default: 1.5, unit: "Hz" },
+    rate: { label: "Rate", min: 0.1, max: 6, step: 0.1, default: 1.2, unit: "Hz" },
     depth: { label: "Depth", min: 0, max: 1, step: 0.01, default: 0.5, unit: "" },
     wetDryMix: { label: "Mix", min: 0, max: 1, step: 0.01, default: 0.5, unit: "" }
   },

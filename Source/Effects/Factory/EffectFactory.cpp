@@ -31,9 +31,9 @@ std::unique_ptr<AudioEffects> EffectsFactory::createEffect(const String& name, D
 
     case EffectType::Chorus:
     {
-        float rate = 1.7f;
-        float depth = 0.8f;
-        float mix = 1.0f;
+        float rate = 1.2f;
+        float depth = 0.5f;
+        float mix = 0.5f;
         float phase = 0.0f;
 
         if (specs != nullptr)
