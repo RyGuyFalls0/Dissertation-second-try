@@ -68,6 +68,7 @@ MainComponent::MainComponent()
     addAndMakeVisible(webView);
     webView.goToURL(webView.getResourceProviderRoot());
 
+    deviceManager.initialise(2, 2, nullptr, true);
     deviceManager.setCurrentAudioDeviceType("ASIO", true);
     setAudioChannels(2, 2);
 }
@@ -169,7 +170,6 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
 
     auto level = bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples);
     currentLevel.store(level);
-    // DBG("Buffer RMS before processing: " << bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples));
 }
 
 void MainComponent::releaseResources() { ; }
@@ -191,11 +191,13 @@ Resource MainComponent::standardError(const String &message)
 
 Resource MainComponent::getAudioDevices()
 {
+    DBG("inside getAudioDevices");
     auto setup = deviceManager.getAudioDeviceSetup();
     auto *deviceType = deviceManager.getCurrentDeviceTypeObject();
 
     if (deviceType == nullptr)
     {
+        DBG("device type null");
         auto errorResponse = R"({"status": "error", "message": "No device type available"})";
         return WebBrowserComponent::Resource{
             stringToVector(errorResponse),
@@ -230,6 +232,8 @@ Resource MainComponent::getAudioDevices()
     }
 
     // Populate the device lists
+
+    DBG("populate lists");
     devicesResult->setProperty("status", "success");
     devicesResult->setProperty("currentInput", setup.inputDeviceName);
     devicesResult->setProperty("currentOutput", setup.outputDeviceName);
@@ -248,6 +252,7 @@ Resource MainComponent::getAudioDevices()
 
     String jsonResponse = JSON::toString(var(devicesResult.get()), false);
     DBG("Generated JSON: " + jsonResponse);
+
 
     return Resource{
         stringToVector(jsonResponse),

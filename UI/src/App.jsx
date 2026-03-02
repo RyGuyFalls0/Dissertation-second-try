@@ -1,7 +1,7 @@
 import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
 import { useState, useEffect } from "react"
 import Carousel from "./Carousel";
-import { sendEffectsData, getAudioList, setAudioIO, stopMicrophone, startMicrophone, applyMasterGain } from "./api.jsx"
+import { sendEffectsData, getAudioList, setAudioIO, stopMicrophone, startMicrophone, applyMasterGain, setASIOChange } from "./api.jsx"
 import EffectModal from "./EffectModal";
 import InfoModal from "./InfoModal.jsx";
 import { MicOffImage, MicOnImage } from "./assets/micImages.jsx"; 
