@@ -321,18 +321,18 @@ Resource MainComponent::setASIO(const String&)
 {
     deviceManager.closeAudioDevice();
 
+    isASIO = !isASIO;
     const String driverType = isASIO ? "ASIO" : "Windows Audio";
 
     deviceManager.setCurrentAudioDeviceType(driverType, true);
 
-    // If inheriting from AudioAppComponent:
     setAudioChannels(2, 2);
 
     String response = isASIO
         ? R"({"status":"success","message":"ASIO enabled"})"
         : R"({"status":"success","message":"ASIO disabled"})";
 
-    return standardError(response);
+    return Resource{ stringToVector(response), "application/json" };
 }
 
 Resource MainComponent::createEffectsChain(const String &url)
