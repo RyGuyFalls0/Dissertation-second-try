@@ -68,8 +68,8 @@ MainComponent::MainComponent()
     addAndMakeVisible(webView);
     webView.goToURL(webView.getResourceProviderRoot());
 
-    deviceManager.initialise(2, 2, nullptr, true);
     deviceManager.setCurrentAudioDeviceType("ASIO", true);
+    deviceManager.initialise(2, 2, nullptr, true);
     setAudioChannels(2, 2);
 }
 

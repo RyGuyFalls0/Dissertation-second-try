@@ -416,6 +416,7 @@ return (
           handleInputDeviceChange={handleInputDeviceChange}
           handleRefreshDevices={handleRefreshDevices}
           handleOutputDeviceChange={handleOutputDeviceChange}
+          isASIO={isASIO}
         />
   </main>
 
