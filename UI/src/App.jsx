@@ -138,7 +138,8 @@ function App() {
     const newValue = !isASIO;
 
     try {
-      await setASIOChange(newValue);
+      await setASIOChange();
+      await fetchAudioList();
       setIsASIO(newValue);
     } catch (err) {
       console.error("Toggle failed");
@@ -184,10 +185,18 @@ function App() {
     const handleInputDeviceChange = async (event) => {
     const selectedDevice = event.target.value;
     try {
-      await setAudioIO({
-        outputDevice: audioList.currentOutput,
+      if (isASIO) {
+        await setAudioIO({
+        outputDevice: selectedDevice,
         inputDevice: selectedDevice
       });
+      }
+      else {
+        await setAudioIO({
+          outputDevice: audioList.currentOutput,
+          inputDevice: selectedDevice
+        });
+      }
       
       const updatedList = await getAudioList();
       setAudioList(updatedList);

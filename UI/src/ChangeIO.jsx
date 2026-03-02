@@ -102,35 +102,43 @@ export default function ChangeIO ({
       </div>
 
 
-      {/* OUTPUT */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Output Device
-        </label>
-        <select
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
-          onChange={handleOutputDeviceChange}
-          value={audioList?.currentOutput || ''}
-          disabled={isASIO}
-        >
-          {audioList?.status === 'success' ? (
-            <>
-              <option value={audioList.currentOutput}>
-                {audioList.currentOutput} (Current)
-              </option>
-              {audioList.outputDevices
+     {/* OUTPUT */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Output Device
+      </label>
+
+      <select
+        className={`w-full px-3 py-2 border border-gray-300 rounded-md 
+          focus:outline-none focus:ring-2 focus:ring-gray-500 
+          ${isASIO 
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+            : 'bg-white'}
+        `}
+        onChange={handleOutputDeviceChange}
+        value={audioList?.currentOutput || ''}
+        disabled={isASIO}
+      >
+        {audioList?.status === 'success' ? (
+          <>
+            <option value={audioList.currentOutput}>
+              {audioList.currentOutput} {isASIO ? '(ASIO Controlled)' : '(Current)'}
+            </option>
+
+            {!isASIO &&
+              audioList.outputDevices
                 ?.filter(d => d !== audioList.currentOutput)
                 .map((device, index) => (
                   <option key={index} value={device}>
                     {device}
                   </option>
                 ))}
-            </>
-          ) : (
-            <option>Loading devices...</option>
-          )}
-        </select>
-      </div>
+          </>
+        ) : (
+          <option>Loading devices...</option>
+        )}
+      </select>
+    </div>
 
     </div>
   );
