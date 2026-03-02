@@ -35,6 +35,15 @@ export const getAudioList = async () => {
   }
 };
 
+export const setASIOChange = async () => {
+  try {
+    const res = await fetch("/api/setASIO");
+  }
+  catch (error) {
+    console.error("Failed to update ASIO mode:", error);
+  }
+};
+
 export const setAudioIO = async (ioConfig) => {
   try {
     const params = new URLSearchParams({ 
@@ -56,7 +65,6 @@ export const setAudioIO = async (ioConfig) => {
     return data;
   } catch (err) {
     console.error("Failed to set audio IO:", err);
-    throw err;
   }
 };
 

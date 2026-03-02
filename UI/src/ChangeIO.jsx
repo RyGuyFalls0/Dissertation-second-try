@@ -5,7 +5,7 @@ export default function ChangeIO ({
   handleRefreshDevices,
   handleOutputDeviceChange,
   isASIO,
-  onToggleDriver
+  changeASIO
 }) {
 
   return (
@@ -60,7 +60,7 @@ export default function ChangeIO ({
 
           {/* Toggle switch */}
           <button
-            onClick={onToggleDriver}
+            onClick={changeASIO}
             className={`w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-300
               ${isASIO ? 'bg-green-500' : 'bg-gray-400'}
             `}

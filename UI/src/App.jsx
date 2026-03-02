@@ -33,6 +33,7 @@ function App() {
 
   const [audioList, setAudioList] = useState({})
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isASIO, setIsASIO] = useState(true);
   
   
   // Modal State
@@ -131,7 +132,18 @@ function App() {
     await fetchAudioList();
     await new Promise(resolve => setTimeout(resolve, 500)); // ensures the spin happens
     setIsRefreshing(false);
-};
+ };
+
+  const handleChangeASIO = async () => {
+    const newValue = !isASIO;
+
+    try {
+      await setASIOChange(newValue);
+      setIsASIO(newValue);
+    } catch (err) {
+      console.error("Toggle failed");
+    }
+  };
 
   const handleSaveEffectValue = (effectId, value) => {
     setActiveEffectsMetadata(prev => ({
@@ -417,6 +429,7 @@ return (
           handleRefreshDevices={handleRefreshDevices}
           handleOutputDeviceChange={handleOutputDeviceChange}
           isASIO={isASIO}
+          changeASIO={handleChangeASIO}
         />
   </main>
 
