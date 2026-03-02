@@ -90,6 +90,8 @@ private:
     Resource getAudioPeaks();
     Resource getAudioData();
 
+    Resource setASIO(const String& url);
+
 
     std::shared_ptr<EffectChain> activeEffectChain{ std::make_shared<EffectChain>() };
     std::shared_ptr<EffectChain> previousEffectChain;
@@ -107,6 +109,8 @@ private:
     static constexpr int DS_SIZE = 400;
     std::array<float, DS_SIZE> downsampledBlock;
     std::atomic<bool> newBlockReady{ false };
+
+    bool isASIO = true;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

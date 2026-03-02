@@ -69,7 +69,6 @@ MainComponent::MainComponent()
     webView.goToURL(webView.getResourceProviderRoot());
 
     deviceManager.setCurrentAudioDeviceType("ASIO", true);
-    deviceManager.initialise(2, 2, nullptr, true);
     setAudioChannels(2, 2);
 }
 
@@ -297,6 +296,8 @@ Resource MainComponent::setAudioDevices(const String &url)
     if (inputDevice.isNotEmpty())
         newSetup.inputDeviceName = inputDevice;
 
+    deviceManager.closeAudioDevice();
+
     String error = deviceManager.setAudioDeviceSetup(newSetup, true);
 
     if (error.isEmpty())
@@ -309,6 +310,24 @@ Resource MainComponent::setAudioDevices(const String &url)
         String response = R"({"status": "error", "message": ")" + error + R"("})";
         return standardError(response);
     }
+}
+
+Resource MainComponent::setASIO(const String&)
+{
+    deviceManager.closeAudioDevice();
+
+    const String driverType = isASIO ? "ASIO" : "Windows Audio";
+
+    deviceManager.setCurrentAudioDeviceType(driverType, true);
+
+    // If inheriting from AudioAppComponent:
+    setAudioChannels(2, 2);
+
+    String response = isASIO
+        ? R"({"status":"success","message":"ASIO enabled"})"
+        : R"({"status":"success","message":"ASIO disabled"})";
+
+    return standardError(response);
 }
 
 Resource MainComponent::createEffectsChain(const String &url)
@@ -502,6 +521,8 @@ auto MainComponent::getResource(const String &url) -> Resource
             return handleStopMicrophone();
         else if (url.startsWith("/api/setMasterGain"))
             return handleSetMasterGain(url);
+        else if (url.startsWith("/api/setASIO"))
+            return setASIO(url);
     }
     static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
                                              .getChildFile("UI")
