@@ -32,4 +32,15 @@ private:
     float lastPitch = 0.0f;
     float lastConfidence = 0.0f;
     std::atomic<bool> ready{ false };
+
+
+    // --- Attack detection ---
+    float envelope = 0.0f;
+    float lastEnvelope = 0.0f;
+    int attackSkipSamples = 0;
+
+    // Tunables
+    float attackThreshold = 0.01f;   // envelope rise
+    float envelopeCoeff = 0.995f;    // smoothing
+    int attackSkipLength = 0;        // set in prepare()
 };

@@ -9,7 +9,7 @@ function LiveWaveform({ active }) {
 
   const FPS = 20;
   const SCALE = 3.0;
-  const NUM_SAMPLES = 400;
+  const NUM_SAMPLES = 256;
 
   useEffect(() => {
     if (!active || !containerRef.current) return;

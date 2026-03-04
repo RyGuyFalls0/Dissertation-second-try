@@ -6,6 +6,7 @@
 #include "PitchDetector.h"
 
 using namespace juce;
+using EffectChain = std::vector<std::unique_ptr<AudioEffects>>;
 using Resource = WebBrowserComponent::Resource;
 
 //==============================================================================
@@ -89,8 +90,11 @@ private:
     Resource getAudioPeaks();
     Resource getAudioData();
 
+    Resource setASIO(const String& url);
 
-    std::shared_ptr<std::vector<std::unique_ptr<AudioEffects>>> effectChain{ std::make_shared<std::vector<std::unique_ptr<AudioEffects>>>() };
+
+    std::shared_ptr<EffectChain> activeEffectChain{ std::make_shared<EffectChain>() };
+    std::shared_ptr<EffectChain> previousEffectChain;
 	double currentSampleRate = 44100;
 
 
@@ -102,9 +106,11 @@ private:
     std::atomic<float> currentMin{ 0.0f };
     std::atomic<float> currentMax{ 0.0f };
 
-    static constexpr int DS_SIZE = 400;
+    static constexpr int DS_SIZE = 256;
     std::array<float, DS_SIZE> downsampledBlock;
     std::atomic<bool> newBlockReady{ false };
+
+    bool isASIO = true;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

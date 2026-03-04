@@ -1,7 +1,7 @@
 import {DragDropContext, Droppable, Draggable} from "@hello-pangea/dnd"
 import { useState, useEffect } from "react"
 import Carousel from "./Carousel";
-import { sendEffectsData, getAudioList, setAudioIO, stopMicrophone, startMicrophone, applyMasterGain } from "./api.jsx"
+import { sendEffectsData, getAudioList, setAudioIO, stopMicrophone, startMicrophone, applyMasterGain, setASIOChange } from "./api.jsx"
 import EffectModal from "./EffectModal";
 import InfoModal from "./InfoModal.jsx";
 import { MicOffImage, MicOnImage } from "./assets/micImages.jsx"; 
@@ -33,6 +33,7 @@ function App() {
 
   const [audioList, setAudioList] = useState({})
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isASIO, setIsASIO] = useState(true);
   
   
   // Modal State
@@ -131,7 +132,19 @@ function App() {
     await fetchAudioList();
     await new Promise(resolve => setTimeout(resolve, 500)); // ensures the spin happens
     setIsRefreshing(false);
-};
+ };
+
+  const handleChangeASIO = async () => {
+    const newValue = !isASIO;
+
+    try {
+      await setASIOChange();
+      await fetchAudioList();
+      setIsASIO(newValue);
+    } catch (err) {
+      console.error("Toggle failed");
+    }
+  };
 
   const handleSaveEffectValue = (effectId, value) => {
     setActiveEffectsMetadata(prev => ({
@@ -172,10 +185,18 @@ function App() {
     const handleInputDeviceChange = async (event) => {
     const selectedDevice = event.target.value;
     try {
-      await setAudioIO({
-        outputDevice: audioList.currentOutput,
+      if (isASIO) {
+        await setAudioIO({
+        outputDevice: selectedDevice,
         inputDevice: selectedDevice
       });
+      }
+      else {
+        await setAudioIO({
+          outputDevice: audioList.currentOutput,
+          inputDevice: selectedDevice
+        });
+      }
       
       const updatedList = await getAudioList();
       setAudioList(updatedList);
@@ -186,7 +207,7 @@ function App() {
 
     const handleMasterGainChange = async (gain) => {
       setMasterGain(gain);
-      const gainDb = -60 + (gain / 100) * 72;
+      const gainDb = -60 + (gain*1.5 / 100) * 72;
       const res = await applyMasterGain(gainDb);
       if (res === "success") return;
       console.log(res);
@@ -416,6 +437,8 @@ return (
           handleInputDeviceChange={handleInputDeviceChange}
           handleRefreshDevices={handleRefreshDevices}
           handleOutputDeviceChange={handleOutputDeviceChange}
+          isASIO={isASIO}
+          changeASIO={handleChangeASIO}
         />
   </main>
 
