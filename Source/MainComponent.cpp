@@ -148,7 +148,7 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill
     const float *processedAudio = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
     const int inputSize = bufferToFill.numSamples;
 
-    int step = inputSize / DS_SIZE; // buffer should usually be about 512 samples long
+    int step = inputSize / DS_SIZE; // buffer should usually be about 256 samples long
     step = jmax(1, step);
 
     for (int i = 0; i < DS_SIZE; ++i)
@@ -380,7 +380,7 @@ Resource MainComponent::createEffectsChain(const String &url)
         effect = EffectsFactory::createEffect(effectInfo.name, effectInfo.specifics);
         if (effect)
         {
-            effect->prepare(currentSampleRate, 512);
+            effect->prepare(currentSampleRate, 256);
             newChain->push_back(std::move(effect));
         }
     }

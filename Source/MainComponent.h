@@ -106,7 +106,7 @@ private:
     std::atomic<float> currentMin{ 0.0f };
     std::atomic<float> currentMax{ 0.0f };
 
-    static constexpr int DS_SIZE = 400;
+    static constexpr int DS_SIZE = 256;
     std::array<float, DS_SIZE> downsampledBlock;
     std::atomic<bool> newBlockReady{ false };
 
