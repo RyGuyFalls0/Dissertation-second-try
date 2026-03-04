@@ -68,6 +68,8 @@ MainComponent::MainComponent()
     addAndMakeVisible(webView);
     webView.goToURL(webView.getResourceProviderRoot());
 
+    analysisThread.startThread();
+
     deviceManager.initialise(2, 2, nullptr, true);
     deviceManager.setCurrentAudioDeviceType("ASIO", true);
     setAudioChannels(2, 2);
@@ -76,6 +78,7 @@ MainComponent::MainComponent()
 MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
+    analysisThread.stopThread(1000);
     shutdownAudio();
 }
 
