@@ -142,7 +142,7 @@ function Tuner({ active }) {
           <div className="text-center text-sm">
             <span
               className={`${
-                Math.abs(cents) < 5
+                Math.abs(cents) < 10
                   ? "text-green-400"
                   : Math.abs(cents) < 15
                   ? "text-amber-400"

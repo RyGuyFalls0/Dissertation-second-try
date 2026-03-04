@@ -4,6 +4,7 @@
 #include "Effects/AudioEffects.h"
 #include "./Effects/Factory/EffectsFactory.h"
 #include "PitchDetector.h"
+#include "PitchAnalysisThread.h"
 
 using namespace juce;
 using EffectChain = std::vector<std::unique_ptr<AudioEffects>>;
@@ -56,6 +57,7 @@ private:
     };
 
 	PitchDetector pitchDetector;
+    PitchAnalysisThread analysisThread{ pitchDetector };
 	Tuner tuner;
     std::atomic<bool> tunerEnabled { false };
 
@@ -96,7 +98,6 @@ private:
     std::shared_ptr<EffectChain> activeEffectChain{ std::make_shared<EffectChain>() };
     std::shared_ptr<EffectChain> previousEffectChain;
 	double currentSampleRate = 44100;
-
 
     AudioDeviceManager deviceManager;
 

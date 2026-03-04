@@ -23,6 +23,15 @@ void PitchDetector::reset()
     std::fill(std::begin(ringBuffer), std::end(ringBuffer), 0.0f);
 }
 
+void PitchDetector::runAnalysis()
+{
+    if (analysisRequested.exchange(false))
+    {
+        estimatePitch();
+        ready.store(true, std::memory_order_release);
+    }
+}
+
 bool PitchDetector::getPitch(float& detectedHz, float& confidence)
 {
     if (!ready)
@@ -54,8 +63,7 @@ void PitchDetector::pushSample(float s)
     if (++samplesCollected >= hopSize)
     {
         samplesCollected = 0;
-        estimatePitch();
-		ready.store(true);
+        analysisRequested.store(true, std::memory_order_release);
     }
 
     if (attackSkipSamples > 0)

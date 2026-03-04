@@ -10,6 +10,7 @@ public:
     void process(const float* input, int numSamples);
     void reset();
     bool getPitch(float& detectedHz, float& confidence);
+    void runAnalysis();
 
 private:
     // good practise (for tha diss)
@@ -31,7 +32,9 @@ private:
 
     float lastPitch = 0.0f;
     float lastConfidence = 0.0f;
+
     std::atomic<bool> ready{ false };
+    std::atomic<bool> analysisRequested{ false };
 
 
     // --- Attack detection ---
