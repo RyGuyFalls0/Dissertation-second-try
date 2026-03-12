@@ -286,7 +286,7 @@ function App() {
 return (
   <div className="min-h-screen bg-white flex flex-col">
     <header className="bg-gray-800 text-white flex justify-between items-center px-6 py-3">
-      <h1 className="text-4xl font-bold">TBC</h1>
+      <h1 className="text-4xl font-bold">Ripened</h1>
       <a href="https://github.com/RyGuyFalls0/Dissertation-second-try" className="text-2xl hover:underline">
         Github
       </a>

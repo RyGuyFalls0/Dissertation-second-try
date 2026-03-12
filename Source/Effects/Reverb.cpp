@@ -39,7 +39,7 @@ void audiofx::Reverb::updateParameters()
     params.roomSize = roomSize;
     params.damping = damping;
     params.wetLevel = wetDryMix;
-	params.dryLevel = std::sqrt(1.0f - wetDryMix * wetDryMix); // this is to maintain energy levels (otherwise a dip is heard when increasing wet mix)
+	params.dryLevel = params.dryLevel = 1.0f - wetDryMix;
     params.width = 1.0f;
     params.freezeMode = 0.0f;
 
