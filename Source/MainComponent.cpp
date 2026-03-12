@@ -83,6 +83,7 @@ MainComponent::~MainComponent()
 }
 
 //==============================================================================
+
 void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
     currentLevel.store(0.0f);
@@ -96,82 +97,90 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
         effect->prepare(sampleRate, samplesPerBlockExpected);
 }
 
-void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill)
+void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill)
 {
-    auto *buffer = bufferToFill.buffer;
+    auto* buffer = bufferToFill.buffer;
     float gainDB = masterGainDB.load();
     const float linearGain = std::pow(10.0f, gainDB / 20.0f);
     auto chain = std::atomic_load(&activeEffectChain);
 
+    if (!micOn)
+    {
+        buffer->clear();
+        return;
+    }
+
     for (int channel = 0; channel < buffer->getNumChannels(); ++channel)
     {
-        float *channelData = buffer->getWritePointer(channel, bufferToFill.startSample);
+        float* channelData = buffer->getWritePointer(channel, bufferToFill.startSample);
 
         for (int sample = 0; sample < bufferToFill.numSamples; ++sample)
         {
-            if (!micOn)
-            {
-                channelData[sample] = 0.0;
-                continue;
-            }
             channelData[sample] *= linearGain;
         }
     }
-    if (!micOn)
-    {
-        return;
-    }
+
+
     if (tunerEnabled.load())
     {
-        const float *input = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+        const float* input = buffer->getReadPointer(0, bufferToFill.startSample);
+
         pitchDetector.process(input, bufferToFill.numSamples);
 
         float detectedHz = 0.0f;
         float confidence = 0.0f;
+
         if (pitchDetector.getPitch(detectedHz, confidence))
         {
             tuner.pitchHz.store(detectedHz);
             tuner.confidence.store(confidence);
         }
     }
- 
+
     else if (chain && !chain->empty())
     {
-        auto *leftChannel = bufferToFill.buffer->getWritePointer(0, bufferToFill.startSample);
-        auto *rightChannel = bufferToFill.buffer->getNumChannels() > 1
-                                 ? bufferToFill.buffer->getWritePointer(1, bufferToFill.startSample)
-                                 : nullptr;
+        auto* leftChannel = buffer->getWritePointer(0, bufferToFill.startSample);
 
-        for (auto &effect : *chain)
+        auto* rightChannel =
+            buffer->getNumChannels() > 1
+            ? buffer->getWritePointer(1, bufferToFill.startSample)
+            : nullptr;
+
+        for (auto& effect : *chain)
         {
             effect->process(leftChannel, rightChannel, bufferToFill.numSamples);
         }
     }
 
-    const float *processedAudio = bufferToFill.buffer->getReadPointer(0, bufferToFill.startSample);
+    for (int channel = 0; channel < buffer->getNumChannels(); ++channel)
+    {
+        float* channelData = buffer->getWritePointer(channel, bufferToFill.startSample);
+
+        for (int sample = 0; sample < bufferToFill.numSamples; ++sample)
+        {
+            channelData[sample] = std::tanh(channelData[sample]);
+        }
+    }
+
+    const float* processedAudio = buffer->getReadPointer(0, bufferToFill.startSample);
     const int inputSize = bufferToFill.numSamples;
 
-    int step = inputSize / DS_SIZE; // buffer should usually be about 256 samples long
+    int step = inputSize / DS_SIZE;
     step = jmax(1, step);
 
     for (int i = 0; i < DS_SIZE; ++i)
     {
         int index = i * step;
+
         if (index >= inputSize)
             downsampledBlock[i] = 1e-3f;
-        else if (processedAudio[index] < 1e-3)
-        {
-            downsampledBlock[i] = 1e-3f;
-        }
         else
-        {
-            downsampledBlock[i] = processedAudio[index];
-        };
+            downsampledBlock[i] = jmax(processedAudio[index], 1e-3f);
     }
 
     newBlockReady.store(true, std::memory_order_release);
 
-    auto level = bufferToFill.buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples);
+    auto level = buffer->getRMSLevel(0, bufferToFill.startSample, bufferToFill.numSamples);
     currentLevel.store(level);
 }
 
@@ -495,7 +504,7 @@ Resource MainComponent::handleSetMasterGain(const String &url)
 
     auto jsonObject = json.getDynamicObject();
     int gain = jsonObject->getProperty("gainDB");
-    DBG(gain << "<<  This is the gain that is sent from UI << " << std::pow(10.0f, gain / 20.0f););
+    DBG(gain << "<<  This is the gain that is sent from UI << " << std::pow(10.0f, gain / 20.0f));
     masterGainDB.store(gain);
     return Resource{stringToVector(R"({"status": "success", "message": "Master gain set successfully"})"), "application/json"};
 }

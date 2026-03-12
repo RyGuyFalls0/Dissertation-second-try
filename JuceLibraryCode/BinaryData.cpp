@@ -18,7 +18,7 @@ static const unsigned char temp_binary_data_0[] =
 "    <link rel=\"icon\" type=\"image/svg+xml\" href=\"/vite.svg\" />\r\n"
 "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\r\n"
 "    <title>ui</title>\r\n"
-"    <script type=\"module\" crossorigin src=\"/assets/index-DIoyqiqm.js\"></script>\n"
+"    <script type=\"module\" crossorigin src=\"/assets/index-BunrjjQf.js\"></script>\n"
 "    <link rel=\"stylesheet\" crossorigin href=\"/assets/index-CgQhQ4SS.css\">\n"
 "  </head>\r\n"
 "  <body>\r\n"

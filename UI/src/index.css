@@ -3,3 +3,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.slick-prev {
+    left: -40px !important;
+    z-index: 10;
+}
+
+.slick-next {
+    right: -40px !important;
+    z-index: 10;
+}
+.slick-prev:before,
+.slick-next:before {
+    color: #22c55e !important;
+    opacity: 1 !important;
+    font-size: 30px;
+}

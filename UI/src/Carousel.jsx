@@ -13,6 +13,7 @@ function Carousel() {
 
   const settings = {
     dots: true,
+    arrows: true,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
@@ -22,11 +23,14 @@ function Carousel() {
   };
 
   return (
-    <div style={{ 
-      width: '100%', 
-      maxWidth: '800px', 
-      margin: '0 auto',
-    }}>
+    <div
+      className="relative px-10"
+      style={{
+        width: "100%",
+        maxWidth: "800px",
+        margin: "0 auto",
+      }}
+    >
     <Slider {...settings}>
       <div className="h-[200px] relative">
         <div className="absolute inset-0 flex items-center justify-center">
