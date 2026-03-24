@@ -523,7 +523,6 @@ auto MainComponent::getResource(const String &url) -> Resource
             return getAudioDevices();
         else if (url.startsWith("/api/setAudioIO"))
             return setAudioDevices(url);
-
         else if (url.startsWith("/api/startTuner"))
             return handleStartTuner();
         else if (url.startsWith("/api/stopTuner"))
@@ -541,9 +540,22 @@ auto MainComponent::getResource(const String &url) -> Resource
         else if (url.startsWith("/api/setASIO"))
             return setASIO(url);
     }
-    static const auto resourceFileRoot = File::getCurrentWorkingDirectory()
-                                             .getChildFile("UI")
-                                             .getChildFile("dist");
+    const auto exeRelativePath = File::getSpecialLocation(File::currentExecutableFile)
+        .getParentDirectory()
+        .getChildFile("UI")
+        .getChildFile("dist");
+
+    const auto devPath = File::getSpecialLocation(File::currentExecutableFile)
+        .getParentDirectory()
+        .getParentDirectory()
+        .getParentDirectory()
+        .getParentDirectory()
+        .getChildFile("UI")
+        .getChildFile("dist");
+
+    static const auto resourceFileRoot = exeRelativePath.exists() ? exeRelativePath : devPath;
+
+	DBG("resource root: " + resourceFileRoot.getFullPathName());
 
     const auto resourceToRetrieve = url == "/" ? "index.html"
                                                : url.fromFirstOccurrenceOf("/", false, false);
