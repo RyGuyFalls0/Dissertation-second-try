@@ -105,7 +105,6 @@ function App() {
 
   const fetchAudioList = async () => {
     try {
-      console.log("trying to get audio list in App.jsx");
       const data = await getAudioList();
       setAudioList(data);
     } catch (error) {
@@ -158,7 +157,6 @@ function App() {
 
   const handleMicChange = async () => {
     const response = await (micOn ? stopMicrophone() : startMicrophone());
-    console.log(response)
     if (response === "success") {
       setMicOn(!micOn);
     }
@@ -210,7 +208,6 @@ function App() {
       const gainDb = -60 + (gain*1.5 / 100) * 72;
       const res = await applyMasterGain(gainDb);
       if (res === "success") return;
-      console.log(res);
     }
 
     const clearActiveEffects = () => {

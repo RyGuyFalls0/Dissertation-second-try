@@ -203,13 +203,11 @@ Resource MainComponent::standardError(const String &message)
 
 Resource MainComponent::getAudioDevices()
 {
-    DBG("inside getAudioDevices");
     auto setup = deviceManager.getAudioDeviceSetup();
     auto *deviceType = deviceManager.getCurrentDeviceTypeObject();
 
     if (deviceType == nullptr)
     {
-        DBG("device type null");
         auto errorResponse = R"({"status": "error", "message": "No device type available"})";
         return WebBrowserComponent::Resource{
             stringToVector(errorResponse),
@@ -244,8 +242,6 @@ Resource MainComponent::getAudioDevices()
     }
 
     // Populate the device lists
-
-    DBG("populate lists");
     devicesResult->setProperty("status", "success");
     devicesResult->setProperty("currentInput", setup.inputDeviceName);
     devicesResult->setProperty("currentOutput", setup.outputDeviceName);
@@ -263,7 +259,6 @@ Resource MainComponent::getAudioDevices()
     devicesResult->setProperty("outputDevices", outputDevices);
 
     String jsonResponse = JSON::toString(var(devicesResult.get()), false);
-    DBG("Generated JSON: " + jsonResponse);
 
 
     return Resource{
@@ -302,8 +297,6 @@ Resource MainComponent::setAudioDevices(const String &url)
     String outputDevice = jsonObject->getProperty("outputDevice").toString();
     String inputDevice = jsonObject->getProperty("inputDevice").toString();
 
-    DBG("Setting output device: " + outputDevice);
-    DBG("Setting input device: " + inputDevice);
 
     auto newSetup = deviceManager.getAudioDeviceSetup();
 
@@ -504,7 +497,6 @@ Resource MainComponent::handleSetMasterGain(const String &url)
 
     auto jsonObject = json.getDynamicObject();
     int gain = jsonObject->getProperty("gainDB");
-    DBG(gain << "<<  This is the gain that is sent from UI << " << std::pow(10.0f, gain / 20.0f));
     masterGainDB.store(gain);
     return Resource{stringToVector(R"({"status": "success", "message": "Master gain set successfully"})"), "application/json"};
 }
@@ -554,8 +546,6 @@ auto MainComponent::getResource(const String &url) -> Resource
         .getChildFile("dist");
 
     static const auto resourceFileRoot = exeRelativePath.exists() ? exeRelativePath : devPath;
-
-	DBG("resource root: " + resourceFileRoot.getFullPathName());
 
     const auto resourceToRetrieve = url == "/" ? "index.html"
                                                : url.fromFirstOccurrenceOf("/", false, false);

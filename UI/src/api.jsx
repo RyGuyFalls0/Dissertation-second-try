@@ -13,7 +13,7 @@ export const sendEffectsData = async (activeEffectsMetadata) => {
 
     const data = await response.json();
 } catch (err) {
-    console.log(err);
+    console.error(err);
 }
 };
 
@@ -31,7 +31,7 @@ export const getAudioList = async () => {
       return data
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -61,7 +61,6 @@ export const setAudioIO = async (ioConfig) => {
     }
     
     const data = await response.json();
-    console.log("Audio IO set successfully:", data);
     return data;
   } catch (err) {
     console.error("Failed to set audio IO:", err);
@@ -82,7 +81,7 @@ export const stopTuner = async () => {
       return data
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 }
 
@@ -100,7 +99,7 @@ export const startTuner = async () => {
       return data
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 }
 
@@ -118,7 +117,7 @@ export const getTuning = async () => {
       return data
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 }
 
@@ -173,7 +172,6 @@ export const stopMicrophone = async () => {
   try {
     const res = await fetch("/api/stopMicrophone");
     const data = await res.json();
-    console.log(data);
     if (data.status === "success") {
       return "success";
     }
