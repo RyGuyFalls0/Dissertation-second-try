@@ -116,7 +116,7 @@ The Ripened interface is divided into three main panels, accessible via the tab 
 | **Effects Drag and Drop**   | Real-time guitar signal processing    |
 | **I/O Selection**           | Controls I/O                          |
 
-There is also **Gain Sliders** on either slide of the screen, an **ASIO Toggle** between the I/O selection and a **Mute Input Button** underneath the carousel.
+There is also **Gain Sliders** on either side of the screen, an **ASIO Toggle** between the I/O selection and a **Mute Input Button** underneath the carousel.
 
 ---
 
@@ -191,7 +191,7 @@ When the program launches, the ASIO slider is set to active and the output selec
 | **Input Device Dropdown**  | Allows for selection of input device                                 |
 | **Output Device Dropdown** | Allows for selection of output device (disabled when ASIO is active) |
 | **Reload Button**          | Refreshes the list of available input and output devices             |
-| **ASIO button**            | Controls whether ASIO is activated                                   |
+| **ASIO Slider**            | Controls whether ASIO is activated                                   |
 
 ---
 
@@ -214,7 +214,7 @@ Oyster stores available effects that can be added to the active effects section.
 
 #### Active Effects
 
-Active effects visualises the effect chain, providing a display of how effect operations will be applied; from top to bottom, sequentially.
+The active effects section visualises the effect chain, displaying how effect operations are applied sequentially from top to bottom.
 
 - **Parameter modal** - Click on an effect within the Active Effects region to open the associated parameter modal and make adjustment to a parameter. For parameters adjustments to take effect, the modal must be saved
 - **Drag and Drop Reorder** - All effects can be reordered within active effects by dragging and dropping
@@ -262,13 +262,13 @@ Modulates a copy of the signal and blends it with the original, creating movemen
 
 #### Wah-Wah
 
-Despite being present, wah-wah remains unimplemented and should be largely ignored.
+Despite being present, wah-wah is currently non-operational and will be implemented in a future release.
 
 ---
 
 ## Gain Sliders
 
-The two gain sliders on either side of the drag and drop are synced so a change to one is reflected in both. When pushed to the highest possible value (100), the sliders will shoot up to the top of the screen to reflect that this is the max possible setting. As the value increases on the sliders, the colour will transition from red → black incrementally.
+The two gain sliders on either side of the drag and drop are synced so a change to one is reflected in both. When pushed to the highest possible value (100), the sliders will extend to the top of the screen to reflect that this is the max possible setting. As the value increases on the sliders, the colour will transition from red → black incrementally.
 
 ## Keyboard Shortcuts
 
