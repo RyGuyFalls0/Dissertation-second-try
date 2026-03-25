@@ -22,7 +22,7 @@ const EFFECT_INFO = {
         "general": "Reverb simulates natural reverberations like sounds bouncing off walls",
         "room size": "You got this one" ,
         "damping": "Dampening simulates the surface of reflection - high dampening simulates a surface like foam where high frequencies are absorbed more" ,
-        "mix": "Controls the volume balance between the original sound (dry) and the echo (wet)"
+        "mix": "Controls the volume balance between the original sound (dry) and the modified signal (wet)"
         },
         animation: <ReverbAnimation />
     },
@@ -31,7 +31,7 @@ const EFFECT_INFO = {
         params: {
         "general": "Distortion clips a rounded (sine) waveform to flatten out its peaks and troughs turning the signal square-(ish)",
         "drive": "Amplifies the signal such that more parts of the signal are clipped",
-        "mix": "Controls the volume balance between the original sound (dry) and the echo (wet)"
+        "mix": "Controls the volume balance between the original sound (dry) and the distorted one (wet)"
         },
         animation: <DistortionAnimation />
     },
@@ -41,7 +41,7 @@ const EFFECT_INFO = {
         "default": "Chorus simulates multiple guitars by playing a slightly altered signal at a slight delay and oscillating around the original signal",
         "rate": "Rate sets how quickly the oscillation happens",
         "depth": "Depth defines how much the signal oscillates or how far out of tune the copies go." ,
-        "mix": "Controls the volume balance between the original sound (dry) and the echo (wet)"
+        "mix": "Controls the volume balance between the original sound (dry) and the modified signal (wet)"
         },
         animation: <ChorusAnimation />
     },
