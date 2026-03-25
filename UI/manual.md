@@ -180,6 +180,21 @@ Visualises the waveform after effect processing
 
 ---
 
+## I/O selection
+
+When the program launches, the ASIO slider is set to active and the output selection is disabled. This is due to ASIO's requirement that I/O must be aligned for ASIO to function.
+
+### Controls
+
+| Control                    | Description                                                          |
+| -------------------------- | -------------------------------------------------------------------- |
+| **Input Device Dropdown**  | Allows for selection of input device                                 |
+| **Output Device Dropdown** | Allows for selection of output device (disabled when ASIO is active) |
+| **Reload Button**          | Refreshes the list of available input and output devices             |
+| **ASIO button**            | Controls whether ASIO is activated                                   |
+
+---
+
 ## Guitar Effects
 
 ### Overview
@@ -206,7 +221,7 @@ Active effects visualises the effect chain, providing a display of how effect op
 
 ### Available Effects
 
-#### Distortion4
+#### Distortion
 
 Adds harmonic saturation and clipping to the signal, ranging from subtle warmth to heavy distortion.
 
@@ -223,19 +238,19 @@ Simulates the natural reflections of a physical space, adding depth and ambience
 | ------------- | ----------------------------------------------------------- |
 | **Room Size** | Size of the simulated space                                 |
 | **Damping**   | How quickly high frequencies decay                          |
-| **Mix**       | Balance between dry (unprocessed) and wet (effected) signal |
+| **Mix**       | Balance between dry (unprocessed) and wet (affected) signal |
 
 #### Delay
 
 Repeats the signal after a set time interval, creating echo effects.
 
-| Parameter    | Description                          |
-| ------------ | ------------------------------------ |
-| **Time**     | Delay time in milliseconds           |
-| **Feedback** | How many repeats occur before fading |
-| **Mix**      | Balance between dry and wet signal   |
+| Parameter      | Description                          |
+| -------------- | ------------------------------------ |
+| **Delay Time** | Delay time in milliseconds           |
+| **Feedback**   | How many repeats occur before fading |
+| **Mix**        | Balance between dry and wet signal   |
 
-#### Chorus / Flanger
+#### Chorus
 
 Modulates a copy of the signal and blends it with the original, creating movement and width.
 
@@ -245,54 +260,26 @@ Modulates a copy of the signal and blends it with the original, creating movemen
 | **Depth** | Intensity of the pitch modulation  |
 | **Mix**   | Balance between dry and wet signal |
 
-#### EQ
+#### Wah-Wah
 
-A parametric equaliser for shaping the tonal balance of your signal.
-
-| Parameter | Description                       |
-| --------- | --------------------------------- |
-| **Low**   | Boost or cut bass frequencies     |
-| **Mid**   | Boost or cut midrange frequencies |
-| **High**  | Boost or cut treble frequencies   |
-
-#### Compressor
-
-Reduces the dynamic range of your signal, evening out the volume between quiet and loud playing.
-
-| Parameter     | Description                                                          |
-| ------------- | -------------------------------------------------------------------- |
-| **Threshold** | Level at which compression begins                                    |
-| **Ratio**     | How aggressively the signal is compressed above the threshold        |
-| **Attack**    | How quickly compression kicks in                                     |
-| **Release**   | How quickly compression stops after the signal drops below threshold |
-| **Gain**      | Output level compensation                                            |
-
-### Recommended Signal Chain Order
-
-The order of effects matters. A general starting point:
-
-```
-Guitar → Compressor → EQ → Distortion → Chorus/Flanger → Delay → Reverb
-```
-
-- **Compressor** first evens out your playing dynamics before hitting gain stages
-- **EQ** before distortion shapes what frequencies get saturated
-- **Modulation** (chorus, flanger) after distortion sounds more natural
-- **Time-based effects** (delay, reverb) last preserves the clarity of repeats and tails
+Despite being present, wah-wah remains unimplemented and should be largely ignored.
 
 ---
 
+## Gain Sliders
+
+The two gain sliders on either side of the drag and drop are synced so a change to one is reflected in both. When pushed to the highest possible value (100), the sliders will shoot up to the top of the screen to reflect that this is the max possible setting. As the value increases on the sliders, the colour will transition from red → black incrementally.
+
 ## Keyboard Shortcuts
 
-| Shortcut                  | Action                                             |
-| ------------------------- | -------------------------------------------------- |
-| `Space`                   | Start / stop metronome                             |
-| `T`                       | Focus tap tempo button                             |
-| `↑` / `↓`                 | Increase / decrease BPM by 1                       |
-| `Shift + ↑` / `Shift + ↓` | Increase / decrease BPM by 10                      |
-| `Tab`                     | Cycle between Tuner, Metronome, and Effects panels |
-
-> _Shortcuts are only active when no text input field is focused._
+| Shortcut | Action                    |
+| -------- | ------------------------- |
+| `1`      | Apply Reverb              |
+| `2`      | Apply Chorus              |
+| `3`      | Apply Delay               |
+| `4`      | Apply Distortion          |
+| `5`      | Apply WahWah              |
+| `d`      | Remove all active effects |
 
 ---
 
